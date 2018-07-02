@@ -1,0 +1,12 @@
+## Interface: 70300
+## Title: Drunkard Suicide Kings
+## Notes: Suicide Kings for the guild Drunkard of Bloodscalp. Updated for Legion.
+## Author: Aaron Castor, updated for MoP/WoD/Legion by Kelzu
+## Version: @project-version@
+## SavedVariables: DrunkardSKDB
+## OptionalDeps: Ace3
+
+
+embeds.xml
+
+DrunkardSK.lua
