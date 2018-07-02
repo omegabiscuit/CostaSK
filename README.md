@@ -3,7 +3,7 @@ There is no Masterlooter in BfA so there is no use for this addon anymore.
 
 # Drunkard Suicide Kings
 
-A Suicide Kings loot distribution addon created for <Drunkard> of Bloodscalp. That does not mean it won't work perfectly well for your guild.
+A Suicide Kings loot distribution addon created for &lt;Drunkard&gt; of Bloodscalp. That does not mean it won't work perfectly well for your guild.
 
 One of the main design goals of DSK was ease of use. There are no options to configure. It is intended to work right out of the box. Set up a list via importing one or manually creating it and you are ready to distribute loot.
 
