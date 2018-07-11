@@ -1,4 +1,4 @@
-# !!! Last update 2017
+## !!! Not under active development, last update 2017
 There is no Masterlooter in BfA so there is no use for this addon anymore.
 
 # Drunkard Suicide Kings
