@@ -1,5 +1,6 @@
-## !!! Not under active development, last update 2017
-There is no Masterlooter in BfA so there is no use for this addon anymore.
+[![Build Status](https://travis-ci.com/ahakola/DrunkardSK.svg?branch=master)](https://travis-ci.com/ahakola/DrunkardSK)
+
+**There is no Masterlooter in BfA so there is no use for this addon in Retail, but this should be usable in Classic.**
 
 # Drunkard Suicide Kings
 
@@ -20,7 +21,7 @@ One of the main design goals of DSK was ease of use. There are no options to con
 
 ### Usage:
 
-/dsk will open the list frame. There are two lists: normal gear and armor tokens.
+`/dsk` will open the list frame. There are two lists: normal gear and armor tokens.
 
 In order to manipulate the lists (add, remove, etc), or opening bidding on an item you must be masterlooter in a raid and a guild officer.
 
@@ -36,12 +37,10 @@ To copy a list into WoW. Go to the I/E List tab. Put a list in the appropriate f
 
 ### Notes:
 
-* ~~An officer is defined by ability to speak in /o. If you can speak in /o you are an officer as far as DSK is concerned.~~ In 7.3 one of the functions used to check for the ability to speak in /o was moved to protected functions and now instead we define officers with ability to edit Officer Notes in the Guild Roster.
+* An officer is defined by ability to speak in `/o`. If you can speak in `/o` you are an officer as far as DSK is concerned.
 * Tier items dropped in the vault will use the normal list. Only the actual armor tokens use the token list.
 
 ### TODO:
 
 * Fix issue with addon sometimes not opening bidding until UI is reloaded.
 * Add a way to undo/revert a list change/suicide.
-
-**Please disable TradeSkillMaster before copy&pasting Lua errors to me, it makes the Lua error -reports almost impossible to read.**

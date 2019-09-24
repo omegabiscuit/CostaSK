@@ -140,25 +140,31 @@ end
 
 --update scroll frame
 local function ScrollList_Update()
-	local entryOffset = FauxScrollFrame_GetOffset(ScrollList); 
+	--local entryOffset = FauxScrollFrame_GetOffset(ScrollList);
+	local entryOffset = FauxScrollFrame_GetOffset(DSKListFrame.list);
 
 	--set hightlight and up/down buttons on selected entry
 	for i=1, 18, 1 do
 		local entryIndex = entryOffset + i;
 		if ( entryIndex == DSKListFrame.selectedEntry ) then
-			getglobal("entry"..i):LockHighlight();
-			DSKListFrame.down:SetPoint('RIGHT', getglobal("entry"..i), 'RIGHT', -2, 0);
+			--getglobal("entry"..i):LockHighlight();
+			--DSKListFrame.down:SetPoint('RIGHT', getglobal("entry"..i), 'RIGHT', -2, 0);
+			DSKListFrame["entry" .. i]:LockHighlight(); -- 1.5.0
+			DSKListFrame.down:SetPoint('RIGHT', DSKListFrame["entry" .. i], 'RIGHT', -2, 0); -- 1.5.0
 			DSKListFrame.down:Show();
 			DSKListFrame.up:Show();
 		else
-			getglobal("entry"..i):UnlockHighlight();
+			--getglobal("entry"..i):UnlockHighlight();
+			DSKListFrame["entry" .. i]:UnlockHighlight();
 		end
 	end
 
 	--if selected entry is not on screen hide up/down buttons
 	if (DSKListFrame.selectedEntry > entryOffset+18) or (DSKListFrame.selectedEntry <= entryOffset) then
-		downButton:Hide();
-		upButton:Hide();
+		--downButton:Hide();
+		--upButton:Hide();
+		DSKListFrame.down:Hide(); -- 1.5.0
+		DSKListFrame.up:Hide(); -- 1.5.0
 	end
 
 	--which tab is selected
@@ -167,87 +173,115 @@ local function ScrollList_Update()
 		local lineplusoffset; -- an index into our data calculated from the scroll offset
 		--loop through and set names and colors in list
 		for line=1,18 do
-			lineplusoffset = line + FauxScrollFrame_GetOffset(ScrollList);
+			--lineplusoffset = line + FauxScrollFrame_GetOffset(ScrollList);
+			lineplusoffset = line + FauxScrollFrame_GetOffset(DSKListFrame.list); -- 1.5.0
 			if lineplusoffset <= DrunkardSK.db.realm.nLength then
 				if DrunkardSK.db.realm.nList[lineplusoffset].bid == "" then
-					getglobal("entry"..line).text:SetText(lineplusoffset..". "..DrunkardSK.db.realm.nList[lineplusoffset].name);
+					--getglobal("entry"..line).text:SetText(lineplusoffset..". "..DrunkardSK.db.realm.nList[lineplusoffset].name);
+					DSKListFrame["entry" .. line].text:SetText(lineplusoffset..". "..DrunkardSK.db.realm.nList[lineplusoffset].name); -- 1.5.0
 				else
-					getglobal("entry"..line).text:SetText(lineplusoffset..". "..DrunkardSK.db.realm.nList[lineplusoffset].name.." - "..DrunkardSK.db.realm.nList[lineplusoffset].bid);
+					--getglobal("entry"..line).text:SetText(lineplusoffset..". "..DrunkardSK.db.realm.nList[lineplusoffset].name.." - "..DrunkardSK.db.realm.nList[lineplusoffset].bid);
+					DSKListFrame["entry" .. line].text:SetText(lineplusoffset..". "..DrunkardSK.db.realm.nList[lineplusoffset].name.." - "..DrunkardSK.db.realm.nList[lineplusoffset].bid); -- 1.5.0
 				end
 				local color = RAID_CLASS_COLORS[DrunkardSK.db.realm.nList[lineplusoffset].class];
 				if (UnitPlayerOrPetInRaid(DrunkardSK.db.realm.nList[lineplusoffset].name) == true) then -- Fixed by Kelzu, changed from 1 to true for WoD
-					getglobal("entry"..line).text:SetTextColor(color.r, color.g, color.b);
+					--getglobal("entry"..line).text:SetTextColor(color.r, color.g, color.b);
+					DSKListFrame["entry" .. line].text:SetTextColor(color.r, color.g, color.b); -- 1.5.0
 				else
-					getglobal("entry"..line).text:SetTextColor(0.5, 0.5, 0.5);
+					--getglobal("entry"..line).text:SetTextColor(0.5, 0.5, 0.5);
+					DSKListFrame["entry" .. line].text:SetTextColor(0.5, 0.5, 0.5); -- 1.5.0
 				end
-				getglobal("entry"..line).text:Show();
+				--getglobal("entry"..line).text:Show();
+				DSKListFrame["entry" .. line].text:Show(); -- 1.5.0
 			else
-				getglobal("entry"..line).text:Hide();
+				--getglobal("entry"..line).text:Hide();
+				DSKListFrame["entry" .. line].text:Hide(); -- 1.5.0
 			end
-		end 
+		end
 
 		--disable up/down if top/bottom entry selected
 		if(DSKListFrame.selectedEntry == 1) and Master then
-			upButton:Disable();
+			--upButton:Disable();
+			DSKListFrame.up:Disable(); -- 1.5.0
 		elseif Master then
-			upButton:Enable();
+			--upButton:Enable();
+			DSKListFrame.up:Enable(); -- 1.5.0
 		end
 
 		if(DSKListFrame.selectedEntry == DrunkardSK.db.realm.nLength) and Master then
-			downButton:Disable();
+			--downButton:Disable();
+			DSKListFrame.down:Disable(); -- 1.5.0
 		elseif Master then
-			downButton:Enable();
+			--downButton:Enable();
+			DSKListFrame.down:Enable(); -- 1.5.0
 		end
 
 		if(DSKListFrame.selectedEntry > DrunkardSK.db.realm.nLength) and Master then
-			downButton:Disable();
-			upButton:Disable();
+			--downButton:Disable();
+			--upButton:Disable();
+			DSKListFrame.down:Disable(); -- 1.5.0
+			DSKListFrame.up:Disable(); -- 1.5.0
 		end
 
-		FauxScrollFrame_Update(ScrollList,DrunkardSK.db.realm.nLength,18,16);
+		--FauxScrollFrame_Update(ScrollList,DrunkardSK.db.realm.nLength,18,16);
+		FauxScrollFrame_Update(DSKListFrame.list,DrunkardSK.db.realm.nLength,18,16); -- 1.5.0
 	elseif(PanelTemplates_GetSelectedTab(DSKListFrame) == 2) then
 		local line; -- 1 through 18 of our window to scroll
 		local lineplusoffset; -- an index into our data calculated from the scroll offset
 		--loop through and set names and colors in list
 		for line=1,18 do
-			lineplusoffset = line + FauxScrollFrame_GetOffset(ScrollList);
+			--lineplusoffset = line + FauxScrollFrame_GetOffset(ScrollList);
+			lineplusoffset = line + FauxScrollFrame_GetOffset(DSKListFrame.list); -- 1.5.0
 			if lineplusoffset <= DrunkardSK.db.realm.tLength then
 				if DrunkardSK.db.realm.tList[lineplusoffset].bid == "" then
-					getglobal("entry"..line).text:SetText(lineplusoffset..". "..DrunkardSK.db.realm.tList[lineplusoffset].name);
+					--getglobal("entry"..line).text:SetText(lineplusoffset..". "..DrunkardSK.db.realm.tList[lineplusoffset].name);
+					DSKListFrame["entry" .. line].text:SetText(lineplusoffset..". "..DrunkardSK.db.realm.tList[lineplusoffset].name); -- 1.5.0
 				else
-					getglobal("entry"..line).text:SetText(lineplusoffset..". "..DrunkardSK.db.realm.tList[lineplusoffset].name.." - "..DrunkardSK.db.realm.tList[lineplusoffset].bid);
+					--getglobal("entry"..line).text:SetText(lineplusoffset..". "..DrunkardSK.db.realm.tList[lineplusoffset].name.." - "..DrunkardSK.db.realm.tList[lineplusoffset].bid);
+					DSKListFrame["entry" .. line].text:SetText(lineplusoffset..". "..DrunkardSK.db.realm.tList[lineplusoffset].name.." - "..DrunkardSK.db.realm.tList[lineplusoffset].bid); -- 1.5.0
 				end 
 				local color = RAID_CLASS_COLORS[DrunkardSK.db.realm.tList[lineplusoffset].class];
 				if (UnitPlayerOrPetInRaid(DrunkardSK.db.realm.tList[lineplusoffset].name) == true) then -- Fixed by Kelzu, changed from 1 to true for WoD
-					getglobal("entry"..line).text:SetTextColor(color.r, color.g, color.b);
+					--getglobal("entry"..line).text:SetTextColor(color.r, color.g, color.b);
+					DSKListFrame["entry" .. line].text:SetTextColor(color.r, color.g, color.b); -- 1.5.0
 				else
-					getglobal("entry"..line).text:SetTextColor(0.5, 0.5, 0.5);
+					--getglobal("entry"..line).text:SetTextColor(0.5, 0.5, 0.5);
+					DSKListFrame["entry" .. line].text:SetTextColor(0.5, 0.5, 0.5); -- 1.5.0
 				end
-				getglobal("entry"..line).text:Show();
+				--getglobal("entry"..line).text:Show();
+				DSKListFrame["entry" .. line].text:Show(); -- 1.5.0
 			else
-				getglobal("entry"..line).text:Hide();
+				--getglobal("entry"..line).text:Hide();
+				DSKListFrame["entry" .. line].text:Hide(); -- 1.5.0
 			end
 		end
 
 		--disable up/down if top/bottom entry selected
 		if(DSKListFrame.selectedEntry == 1) and Master then
-			upButton:Disable();
+			--upButton:Disable();
+			DSKListFrame.up:Disable(); -- 1.5.0
 		elseif Master then
-			upButton:Enable();
+			--upButton:Enable();
+			DSKListFrame.up:Enable(); -- 1.5.0
 		end
 
 		if(DSKListFrame.selectedEntry == DrunkardSK.db.realm.tLength) and Master then
-			downButton:Disable();
+			--downButton:Disable();
+			DSKListFrame.down:Disable(); -- 1.5.0
 		elseif Master then
-			downButton:Enable();
+			--downButton:Enable();
+			DSKListFrame.down:Enable(); -- 1.5.0
 		end
 
 		if(DSKListFrame.selectedEntry > DrunkardSK.db.realm.tLength) and Master then
-			downButton:Disable();
-			upButton:Disable();
+			--downButton:Disable();
+			--upButton:Disable();
+			DSKListFrame.down:Disable(); -- 1.5.0
+			DSKListFrame.up:Disable(); -- 1.5.0
 		end
 
-		FauxScrollFrame_Update(ScrollList,DrunkardSK.db.realm.tLength,18,16);
+		--FauxScrollFrame_Update(ScrollList,DrunkardSK.db.realm.tLength,18,16);
+		FauxScrollFrame_Update(DSKListFrame.list,DrunkardSK.db.realm.tLength,18,16); -- 1.5.0
 	end
 end
 
@@ -265,6 +299,10 @@ local function ClickTTab()
 	DSKListFrame.closeBid:Show();
 	DSKListFrame.sync:Show();
 	DSKListFrame.list:Show();
+	for i = 1, 18 do -- 1.5.0
+		DSKListFrame["entry" .. i]:Show()
+	end
+	--[[
 	DSKListFrame.entry1:Show();
 	DSKListFrame.entry2:Show();
 	DSKListFrame.entry3:Show();
@@ -283,6 +321,7 @@ local function ClickTTab()
 	DSKListFrame.entry16:Show();
 	DSKListFrame.entry17:Show();
 	DSKListFrame.entry18:Show();
+	]]
 	DSKListFrame.import:Hide();
 	DSKListFrame.export:Hide();
 	DSKListFrame.tokenRadio:Hide();
@@ -305,6 +344,10 @@ local function ClickNTab()
 	DSKListFrame.closeBid:Show();
 	DSKListFrame.sync:Show();
 	DSKListFrame.list:Show();
+	for i = 1, 18 do -- 1.5.0
+		DSKListFrame["entry" .. i]:Show()
+	end
+	--[[
 	DSKListFrame.entry1:Show();
 	DSKListFrame.entry2:Show();
 	DSKListFrame.entry3:Show();
@@ -323,6 +366,7 @@ local function ClickNTab()
 	DSKListFrame.entry16:Show();
 	DSKListFrame.entry17:Show();
 	DSKListFrame.entry18:Show();
+	]]
 	DSKListFrame.import:Hide();
 	DSKListFrame.export:Hide();
 	DSKListFrame.tokenRadio:Hide();
@@ -344,6 +388,10 @@ local function ClickITab()
 	DSKListFrame.closeBid:Hide();
 	DSKListFrame.sync:Hide();
 	DSKListFrame.list:Hide();
+	for i = 1, 18 do -- 1.5.0
+		DSKListFrame["entry" .. i]:Hide()
+	end
+	--[[
 	DSKListFrame.entry1:Hide();
 	DSKListFrame.entry2:Hide();
 	DSKListFrame.entry3:Hide();
@@ -362,6 +410,7 @@ local function ClickITab()
 	DSKListFrame.entry16:Hide();
 	DSKListFrame.entry17:Hide();
 	DSKListFrame.entry18:Hide();
+	]]
 	DSKListFrame.import:Show();
 	DSKListFrame.export:Show();
 	DSKListFrame.tokenRadio:Show();
@@ -380,7 +429,8 @@ end
 
 --on entry button click
 local function EntrySelect(self)
-	DSKListFrame.selectedEntry = FauxScrollFrame_GetOffset(ScrollList) + self:GetID()
+	--DSKListFrame.selectedEntry = FauxScrollFrame_GetOffset(ScrollList) + self:GetID()
+	DSKListFrame.selectedEntry = FauxScrollFrame_GetOffset(DSKListFrame.list) + self:GetID() -- 1.5.0
 	ScrollList_Update()
 end
 
@@ -469,13 +519,15 @@ end
 local function DeleteClick(self, button, down)
 	if(DSKListFrame.selectedEntry ~= 0) then
 		if(PanelTemplates_GetSelectedTab(DSKListFrame) == 1) then
-			if(DrunkardSK.db.realm.nLength > 0) then
+			--if(DrunkardSK.db.realm.nLength > 0) then
+			if(DrunkardSK.db.realm.nLength >= DSKListFrame.selectedEntry) then  -- Make sure we haven't selected empty slot and accidentally delete the last name in the list, added in 1.5.0
 				table.remove(DrunkardSK.db.realm.nList, DSKListFrame.selectedEntry)
 				DrunkardSK.db.realm.nLength = DrunkardSK.db.realm.nLength - 1;
 				DrunkardSK.db.realm.nStamp = DrunkardSK:CreateTimeStamp(DrunkardSK.db.realm.nStamp);
 			end
 		elseif(PanelTemplates_GetSelectedTab(DSKListFrame) == 2) then
-			if(DrunkardSK.db.realm.tLength > 0) then
+			--if(DrunkardSK.db.realm.tLength > 0) then
+			if(DrunkardSK.db.realm.tLength >= DSKListFrame.selectedEntry) then  -- Make sure we haven't selected empty slot and accidentally delete the last name in the list, added in 1.5.0
 				table.remove(DrunkardSK.db.realm.tList, DSKListFrame.selectedEntry);
 				DrunkardSK.db.realm.tLength = DrunkardSK.db.realm.tLength - 1;
 				DrunkardSK.db.realm.tStamp = DrunkardSK:CreateTimeStamp(DrunkardSK.db.realm.tStamp);
@@ -739,7 +791,7 @@ function DrunkardSK:OnEnable()
 	local f = CreateFrame('Frame', 'DSKBidFrame', UIParent)
 	f:Hide()
 
-	f:SetWidth(350); 
+	f:SetWidth(350);
 	f:SetHeight(120);
 	f:SetPoint("CENTER");
 	f:SetBackdrop(DrunkardSK.bg)
@@ -758,7 +810,7 @@ function DrunkardSK:OnEnable()
 
 	--item link
 	f.link = CreateFrame('ScrollingMessageFrame', nil, f)
-	f.link:SetWidth(290) 
+	f.link:SetWidth(290)
 	f.link:SetHeight(14)
 	f.link:SetMaxLines(1)
 	f.link:SetFontObject("GameFontNormal");
@@ -854,18 +906,20 @@ function DrunkardSK:OnEnable()
 
 	--token list tab
 	l.tTab = CreateFrame('Button', 'DSKListFrameTab2', l, "CharacterFrameTabButtonTemplate")
-	l.tTab:SetPoint("LEFT", DSKListFrameTab1, "RIGHT", -14, 0);
+	--l.tTab:SetPoint("LEFT", DSKListFrameTab1, "RIGHT", -14, 0);
+	l.tTab:SetPoint("LEFT", l.nTab, "RIGHT", -14, 0); -- 1.5.0
 	l.tTab:SetID(2)
 	l.tTab:SetText('Token List')
 	l.tTab:SetScript('OnClick', ClickTTab)
 
 
 	--i/e list tab
-	l.tTab = CreateFrame('Button', 'DSKListFrameTab3', l, "CharacterFrameTabButtonTemplate")
-	l.tTab:SetPoint("LEFT", DSKListFrameTab2, "RIGHT", -14, 0);
-	l.tTab:SetID(3)
-	l.tTab:SetText('I/E Lists')
-	l.tTab:SetScript('OnClick', ClickITab)
+	l.iTab = CreateFrame('Button', 'DSKListFrameTab3', l, "CharacterFrameTabButtonTemplate")
+	--l.iTab:SetPoint("LEFT", DSKListFrameTab2, "RIGHT", -14, 0);
+	l.iTab:SetPoint("LEFT", l.tTab, "RIGHT", -14, 0); -- 1.5.0
+	l.iTab:SetID(3)
+	l.iTab:SetText('I/E Lists')
+	l.iTab:SetScript('OnClick', ClickITab)
 
 
 	--add button
@@ -877,7 +931,8 @@ function DrunkardSK:OnEnable()
 	--delete button
 	l.del = CreateFrame('Button', nil, l, "OptionsButtonTemplate")
 	l.del:SetText('Delete')
-	l.del:SetPoint('LEFT', ListAddButton, 'RIGHT', 0, 0)
+	--l.del:SetPoint('LEFT', ListAddButton, 'RIGHT', 0, 0)
+	l.del:SetPoint('LEFT', l.add, 'RIGHT', 0, 0) -- 1.5.0
 	l.del:SetScript('OnClick', DeleteClick)
 
 	--murder button
@@ -895,7 +950,8 @@ function DrunkardSK:OnEnable()
 	--sync button
 	l.sync = CreateFrame('Button', nil, l, "OptionsButtonTemplate")
 	l.sync:SetText('Sync')
-	l.sync:SetPoint('LEFT', ListMurderButton, 'RIGHT', 0, 0)
+	--l.sync:SetPoint('LEFT', ListMurderButton, 'RIGHT', 0, 0)
+	l.sync:SetPoint('LEFT', l.murder, 'RIGHT', 0, 0) -- 1.5.0
 	l.sync:SetScript('OnClick', SyncClick)
 
 	--export button
@@ -908,7 +964,8 @@ function DrunkardSK:OnEnable()
 	--import button
 	l.import = CreateFrame('Button', nil, l, "OptionsButtonTemplate")
 	l.import:SetText('Import')
-	l.import:SetPoint('LEFT', ExportButton, 'RIGHT', 0, 0)
+	--l.import:SetPoint('LEFT', ExportButton, 'RIGHT', 0, 0)
+	l.import:SetPoint('LEFT', l.export, 'RIGHT', 0, 0) -- 1.5.0
 	l.import:SetScript('OnClick', ImportClick)
 	l.import:Hide();
 
@@ -923,7 +980,8 @@ function DrunkardSK:OnEnable()
 	--token radio button
 	l.tokenRadio = CreateFrame("CheckButton", "TokenRadioButton", l, "UIRadioButtonTemplate")
 	TokenRadioButtonText:SetText('Token List')
-	l.tokenRadio:SetPoint('LEFT', NormalRadioButton, 'RIGHT', 75, 0)
+	--l.tokenRadio:SetPoint('LEFT', NormalRadioButton, 'RIGHT', 75, 0)
+	l.tokenRadio:SetPoint('LEFT', l.normalRadio, 'RIGHT', 75, 0) -- 1.5.0
 	l.tokenRadio:SetScript('OnClick', TokenRadioClick)
 	l.tokenRadio:Hide()
 
@@ -947,6 +1005,7 @@ function DrunkardSK:OnEnable()
 	l.editScroll:SetScrollChild(l.editArea)
 	l.editScroll:Hide()
 
+--[[
 	--down button
 	l.down = CreateFrame('Button', 'downButton', l, 'UIPanelScrollDownButtonTemplate')
 	l.down:SetPoint('RIGHT', entry1, 'RIGHT')
@@ -959,7 +1018,8 @@ function DrunkardSK:OnEnable()
 	l.up:SetPoint('RIGHT', downButton, 'LEFT')
 	l.up:SetFrameStrata('FULLSCREEN')
 	l.up:SetScript('OnClick', UpClick)
-	l.up:Hide()	
+	l.up:Hide()
+]]
 
 	--scroll frame (actual list)
 	l.list = CreateFrame('ScrollFrame', 'ScrollList', l, 'FauxScrollFrameTemplate')
@@ -970,7 +1030,41 @@ function DrunkardSK:OnEnable()
 			FauxScrollFrame_OnVerticalScroll(self, offset, 16, ScrollList_Update);
 			end)
 
+	-- Shortening hard coded stuff down with iterator and reducing the amount of globals 1.5.0
+	--entry buttons
+	for i = 1, 18 do
+		l["entry" .. i] = CreateFrame('Button', 'entry' .. i, l)
+		if i == 1 then
+			l["entry" .. i]:SetPoint('TOPLEFT', l.list, 'TOPLEFT', 8, 0)
+		else
+			l["entry" .. i]:SetPoint('TOPLEFT', l["entry" .. i - 1], 'BOTTOMLEFT')
+		end
+		l["entry" .. i].text = l["entry" .. i]:CreateFontString('entry' .. i .. '_Text', 'BORDER','GameFontHighlightLeft')
+		l["entry" .. i].text:SetText('entry' .. i)
+		l["entry" .. i].text:SetPoint('LEFT')
+		l["entry" .. i]:SetWidth(200)
+		l["entry" .. i]:SetHeight(16)
+		l["entry" .. i]:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight", "ADD")
+		l["entry" .. i]:EnableMouse(true)
+		l["entry" .. i]:SetScript('OnClick', EntryClick)
+		l["entry" .. i]:SetID(i)
+	end
 
+	--down button
+	l.down = CreateFrame('Button', 'downButton', l, 'UIPanelScrollDownButtonTemplate')
+	l.down:SetPoint('RIGHT', l.entry1, 'RIGHT')
+	l.down:SetFrameStrata('FULLSCREEN')
+	l.down:SetScript('OnClick', DownClick)
+	l.down:Hide()
+
+	--up button
+	l.up = CreateFrame('Button', 'upButton', l, 'UIPanelScrollUpButtonTemplate')
+	l.up:SetPoint('RIGHT', l.down, 'LEFT')
+	l.up:SetFrameStrata('FULLSCREEN')
+	l.up:SetScript('OnClick', UpClick)
+	l.up:Hide()
+
+--[[
 	--entry buttons
 	l.entry1 = CreateFrame('Button', 'entry1', l)
 	l.entry1:SetPoint('TOPLEFT', ScrollList, 'TOPLEFT', 8, 0)
@@ -1187,6 +1281,7 @@ function DrunkardSK:OnEnable()
 	l.entry18:EnableMouse(true)
 	l.entry18:SetScript('OnClick', EntryClick)
 	l.entry18:SetID(18)
+]]
 
 	--confirm import frame
 	local c = CreateFrame('Frame', 'DSKConfirmFrame', UIParent);
@@ -1232,12 +1327,21 @@ function DrunkardSK:OnEnable()
 
 	DSKListFrame.selectedEntry = 0;
 
+	--[[
 	--setup tabs
 	PanelTemplates_SetNumTabs(DSKListFrame, 3);
 	PanelTemplates_TabResize(DSKListFrameTab1, 30)
 	PanelTemplates_TabResize(DSKListFrameTab2, 30)
 	PanelTemplates_TabResize(DSKListFrameTab3, 30)
 	PanelTemplates_SetTab(DSKListFrame, 1);
+	]]
+	-- Reduce amount of different globals in 1.5.0
+	--setup tabs
+	PanelTemplates_SetNumTabs(l, 3);
+	PanelTemplates_TabResize(l.nTab, 30)
+	PanelTemplates_TabResize(l.tTab, 30)
+	PanelTemplates_TabResize(l.iTab, 30)
+	PanelTemplates_SetTab(l, 1);
 
 	--hooks
 	DrunkardSK:SecureHook("HandleModifiedItemClick", "DSK_HandleModifiedItemClick")
@@ -1261,7 +1365,18 @@ function DrunkardSK:OnDisable()
 	-- Called when the addon is disabled
 end
 
---[[function DrunkardSK:IsOfficer()
+function DrunkardSK:IsOfficer()
+	-- 8.0 introduced C_GuildInfo and we can mimic the original function in 1.5.0
+	if not IsInGuild() then -- Can't be officer if you are not in a guild
+		return false
+	end
+
+	local rankOrder = C_GuildInfo.GetGuildRankOrder(UnitGUID("player"))
+	local _, _, _, officerchat_speak = C_GuildInfo.GuildControlGetRankFlags(rankOrder)
+
+	return officerchat_speak
+
+	--[[
 	local ret
 	local _,_,playerrank = GetGuildInfo("player");
 	GuildControlSetRank(playerrank + 1);
@@ -1273,11 +1388,12 @@ end
 	end
 	
 	return ret;
-end]]
-function DrunkardSK:IsOfficer() -- 7.3 GuildControlSetRank() is now Protected function
+	]]
+end
+--[[function DrunkardSK:IsOfficer() -- 7.3 GuildControlSetRank() is now Protected function
 	-- Checking if player can edit Officer Notes instead of Officer Chat speak rights
 	return CanEditOfficerNote()
-end
+end]]
 
 --is masterlooter and guild officer
 function DrunkardSK:IsMaster()
@@ -1320,7 +1436,9 @@ end
 --create list timestamp
 function DrunkardSK:CreateTimeStamp(oldstamp)
 	local _, hour, minute = GameTime_GetGameTime(false);
-	local _, month, day, year = CalendarGetDate();
+	--local _, month, day, year = CalendarGetDate();
+	local CalendarDate = C_DateAndTime.GetTodaysDate() -- CalendarGetDate() came in WotLK, C_DateAndTime was introduced in 8.1 and GetTodaysDate() is available in Classic in 1.5.0
+	local month, day, year = CalendarDate.month, CalendarDate.day, CalendarDate.year
 	if (hour < 10) then
 		hour = "0"..hour;
 	end
@@ -1359,6 +1477,7 @@ end
 
 --set item being bid on
 function DrunkardSK:SetOpenItem(item)
+	--[[
 	local n, l, quality, iL, reqL, t, subT, maxS, equipS, texture = GetItemInfo(item)
 	DSKBidFrame.link:AddMessage(item);
 
@@ -1371,6 +1490,18 @@ function DrunkardSK:SetOpenItem(item)
 		local r, g, b, hex = GetItemQualityColor(quality); -- local scoped by Kelzu 1.4.1
 		SetItemButtonNormalTextureVertexColor(DSKBidFrame.item, r, g, b);
 	end
+	]]
+	-- Doing it the 8.0 way, this should make sure we have the Icon and QualityColor always available to us in 1.5.0
+	local i = Item:CreateFromItemLink(item)
+	i:ContinueOnItemLoad(function() -- Information should be cached now
+		local itemIcon = i:GetItemIcon()
+		local r, g, b = i:GetItemQualityColor()
+
+		DSKBidFrame.link:AddMessage(item)
+
+		SetItemButtonTexture(DSKBidFrame.item, itemIcon)
+		SetItemButtonNormalTextureVertexColor(DSKBidFrame.item, r, g, b)
+	end)
 end
 
 --find persons spot in table
@@ -1444,6 +1575,7 @@ function DrunkardSK:FindHighRoller()
 			roll = OffspecList[i].roll;
 			name = OffspecList[i].name;
 			found = true;
+			break -- 1.5.0
 		end
 	end
 	if (found) then
@@ -1458,9 +1590,11 @@ function DrunkardSK:RemoveRoller(name)
 	for i=1, OffspecCount, 1 do 
 		if (OffspecList[i].name == name) then
 			OffspecList[i].retracted = true;
+			break -- 1.5.0
 		end
 	end
-	return name, roll;
+	--return name, roll;
+	return true -- 1.5.0
 end
 
 --find bidder by name and remove
@@ -1471,6 +1605,7 @@ function DrunkardSK:RemoveBidder(name)
 	for index,value in ipairs(BidList) do 
 		if (value == rank) then
 			bidrank = index;
+			break -- 1.5.0
 		end
 	end
 	table.remove(BidList, bidrank);
@@ -1486,6 +1621,7 @@ function DrunkardSK:AddRoller(name)
 			OffspecList[i].retracted = false;
 			roll = OffspecList[i].roll;
 			found = true;
+			break -- 1.5.0
 		end
 	end
 	--add to OffspecList
@@ -1690,7 +1826,7 @@ function DrunkardSK:DSK_HandleModifiedItemClick(item)
 				not IsShiftKeyDown() and 
 					not IsControlKeyDown()) then
 				ItemLink = item;
-				local _ = GetItemInfo(ItemLink) -- Try to cache GetItemInfo for detecting Tier-items in 7.3
+				--local _ = GetItemInfo(ItemLink) -- Try to cache GetItemInfo for detecting Tier-items in 7.3 -- We don't need this anymore in 1.5.0
 				DrunkardSK:SendCommMessage("DSKOpenBid", ItemLink, "RAID");
 				BidNotOpen = false;
 				DSKListFrame.closeBid:Enable();
