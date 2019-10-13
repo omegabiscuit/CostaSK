@@ -1372,7 +1372,8 @@ function DrunkardSK:IsOfficer()
 	end
 
 	local rankOrder = C_GuildInfo.GetGuildRankOrder(UnitGUID("player"))
-	local _, _, _, officerchat_speak = C_GuildInfo.GuildControlGetRankFlags(rankOrder)
+	--local _, _, _, officerchat_speak = C_GuildInfo.GuildControlGetRankFlags(rankOrder)
+	local officerchat_speak = C_GuildInfo.GuildControlGetRankFlags(rankOrder)[4] -- GuildControlGetRankFlags returns 'table of permissions' instead of 'list of permissions'... Fixed in 1.5.1
 
 	return officerchat_speak
 
