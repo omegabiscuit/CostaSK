@@ -1,11 +1,11 @@
 --[[
-	DrunkardSK.lua
+	CostaSK.lua
 		Drunkard Suicide Kings
 --]]
 
-local DrunkardSK = LibStub("AceAddon-3.0"):NewAddon("DrunkardSK", "AceConsole-3.0", "AceHook-3.0", "AceComm-3.0", "AceSerializer-3.0", "AceEvent-3.0")
+local CostaSK = LibStub("AceAddon-3.0"):NewAddon("CostaSK", "AceConsole-3.0", "AceHook-3.0", "AceComm-3.0", "AceSerializer-3.0", "AceEvent-3.0")
 
-DrunkardSK.bg = {
+CostaSK.bg = {
 	bgFile = 'Interface\\DialogFrame\\UI-DialogBox-Background',
 	edgeFile = 'Interface\\DialogFrame\\UI-DialogBox-Border',
 	insets = {left = 11, right = 11, top = 12, bottom = 11},
@@ -107,316 +107,256 @@ local function Suicide(entry, list)
 	local current = entry + 1;
 
 	if(list == "nList") then
-		if (current < DrunkardSK.db.realm.nLength) then
-			for i=current, DrunkardSK.db.realm.nLength, 1 do
-				if (UnitPlayerOrPetInRaid(DrunkardSK.db.realm.nList[i].name) == true) then -- Fixed by Kelzu, changed from 1 to true for WoD
+		if (current < CostaSK.db.realm.nLength) then
+			for i=current, CostaSK.db.realm.nLength, 1 do
+				if (UnitPlayerOrPetInRaid(CostaSK.db.realm.nList[i].name) == true) then -- Fixed by Kelzu, changed from 1 to true for WoD
 					--swap selected with current
-					local temp = DrunkardSK.db.realm.nList[i];
-					DrunkardSK.db.realm.nList[i] = DrunkardSK.db.realm.nList[suicider];
-					DrunkardSK.db.realm.nList[suicider] = temp;
+					local temp = CostaSK.db.realm.nList[i];
+					CostaSK.db.realm.nList[i] = CostaSK.db.realm.nList[suicider];
+					CostaSK.db.realm.nList[suicider] = temp;
 					--set new suicider position
 					suicider = i;
 				end
 			end
-			DrunkardSK.db.realm.nStamp = DrunkardSK:CreateTimeStamp(DrunkardSK.db.realm.nStamp);
+			CostaSK.db.realm.nStamp = CostaSK:CreateTimeStamp(CostaSK.db.realm.nStamp);
 		end
 	else
-		if (current < DrunkardSK.db.realm.tLength) then
-			for i=current, DrunkardSK.db.realm.tLength, 1 do
-				if (UnitPlayerOrPetInRaid(DrunkardSK.db.realm.tList[i].name) == true) then -- Fixed by Kelzu, changed from 1 to true for WoD
+		if (current < CostaSK.db.realm.tLength) then
+			for i=current, CostaSK.db.realm.tLength, 1 do
+				if (UnitPlayerOrPetInRaid(CostaSK.db.realm.tList[i].name) == true) then -- Fixed by Kelzu, changed from 1 to true for WoD
 					--swap selected with current
-					local temp = DrunkardSK.db.realm.tList[i];
-					DrunkardSK.db.realm.tList[i] = DrunkardSK.db.realm.tList[suicider];
-					DrunkardSK.db.realm.tList[suicider] = temp;
+					local temp = CostaSK.db.realm.tList[i];
+					CostaSK.db.realm.tList[i] = CostaSK.db.realm.tList[suicider];
+					CostaSK.db.realm.tList[suicider] = temp;
 					--set new suicider position
 					suicider = i;
 				end
 			end
-			DrunkardSK.db.realm.tStamp = DrunkardSK:CreateTimeStamp(DrunkardSK.db.realm.tStamp);
+			CostaSK.db.realm.tStamp = CostaSK:CreateTimeStamp(CostaSK.db.realm.tStamp);
 		end
 	end
-	DSKListFrame.selectedEntry = suicider;
+	CSKListFrame.selectedEntry = suicider;
 end
 
 --update scroll frame
 local function ScrollList_Update()
 	--local entryOffset = FauxScrollFrame_GetOffset(ScrollList);
-	local entryOffset = FauxScrollFrame_GetOffset(DSKListFrame.list);
+	local entryOffset = FauxScrollFrame_GetOffset(CSKListFrame.list);
 
 	--set hightlight and up/down buttons on selected entry
 	for i=1, 18, 1 do
 		local entryIndex = entryOffset + i;
-		if ( entryIndex == DSKListFrame.selectedEntry ) then
+		if ( entryIndex == CSKListFrame.selectedEntry ) then
 			--getglobal("entry"..i):LockHighlight();
-			--DSKListFrame.down:SetPoint('RIGHT', getglobal("entry"..i), 'RIGHT', -2, 0);
-			DSKListFrame["entry" .. i]:LockHighlight(); -- 1.5.0
-			DSKListFrame.down:SetPoint('RIGHT', DSKListFrame["entry" .. i], 'RIGHT', -2, 0); -- 1.5.0
-			DSKListFrame.down:Show();
-			DSKListFrame.up:Show();
+			--CSKListFrame.down:SetPoint('RIGHT', getglobal("entry"..i), 'RIGHT', -2, 0);
+			CSKListFrame["entry" .. i]:LockHighlight(); -- 1.5.0
+			CSKListFrame.down:SetPoint('RIGHT', CSKListFrame["entry" .. i], 'RIGHT', -2, 0); -- 1.5.0
+			CSKListFrame.down:Show();
+			CSKListFrame.up:Show();
 		else
 			--getglobal("entry"..i):UnlockHighlight();
-			DSKListFrame["entry" .. i]:UnlockHighlight();
+			CSKListFrame["entry" .. i]:UnlockHighlight();
 		end
 	end
 
 	--if selected entry is not on screen hide up/down buttons
-	if (DSKListFrame.selectedEntry > entryOffset+18) or (DSKListFrame.selectedEntry <= entryOffset) then
+	if (CSKListFrame.selectedEntry > entryOffset+18) or (CSKListFrame.selectedEntry <= entryOffset) then
 		--downButton:Hide();
 		--upButton:Hide();
-		DSKListFrame.down:Hide(); -- 1.5.0
-		DSKListFrame.up:Hide(); -- 1.5.0
+		CSKListFrame.down:Hide(); -- 1.5.0
+		CSKListFrame.up:Hide(); -- 1.5.0
 	end
 
 	--which tab is selected
-	if(PanelTemplates_GetSelectedTab(DSKListFrame) == 1) then
+	if(PanelTemplates_GetSelectedTab(CSKListFrame) == 1) then
 		local line; -- 1 through 18 of our window to scroll
 		local lineplusoffset; -- an index into our data calculated from the scroll offset
 		--loop through and set names and colors in list
 		for line=1,18 do
 			--lineplusoffset = line + FauxScrollFrame_GetOffset(ScrollList);
-			lineplusoffset = line + FauxScrollFrame_GetOffset(DSKListFrame.list); -- 1.5.0
-			if lineplusoffset <= DrunkardSK.db.realm.nLength then
-				if DrunkardSK.db.realm.nList[lineplusoffset].bid == "" then
-					--getglobal("entry"..line).text:SetText(lineplusoffset..". "..DrunkardSK.db.realm.nList[lineplusoffset].name);
-					DSKListFrame["entry" .. line].text:SetText(lineplusoffset..". "..DrunkardSK.db.realm.nList[lineplusoffset].name); -- 1.5.0
+			lineplusoffset = line + FauxScrollFrame_GetOffset(CSKListFrame.list); -- 1.5.0
+			if lineplusoffset <= CostaSK.db.realm.nLength then
+				if CostaSK.db.realm.nList[lineplusoffset].bid == "" then
+					--getglobal("entry"..line).text:SetText(lineplusoffset..". "..CostaSK.db.realm.nList[lineplusoffset].name);
+					CSKListFrame["entry" .. line].text:SetText(lineplusoffset..". "..CostaSK.db.realm.nList[lineplusoffset].name); -- 1.5.0
 				else
-					--getglobal("entry"..line).text:SetText(lineplusoffset..". "..DrunkardSK.db.realm.nList[lineplusoffset].name.." - "..DrunkardSK.db.realm.nList[lineplusoffset].bid);
-					DSKListFrame["entry" .. line].text:SetText(lineplusoffset..". "..DrunkardSK.db.realm.nList[lineplusoffset].name.." - "..DrunkardSK.db.realm.nList[lineplusoffset].bid); -- 1.5.0
+					--getglobal("entry"..line).text:SetText(lineplusoffset..". "..CostaSK.db.realm.nList[lineplusoffset].name.." - "..CostaSK.db.realm.nList[lineplusoffset].bid);
+					CSKListFrame["entry" .. line].text:SetText(lineplusoffset..". "..CostaSK.db.realm.nList[lineplusoffset].name.." - "..CostaSK.db.realm.nList[lineplusoffset].bid); -- 1.5.0
 				end
-				local color = RAID_CLASS_COLORS[DrunkardSK.db.realm.nList[lineplusoffset].class];
-				if (UnitPlayerOrPetInRaid(DrunkardSK.db.realm.nList[lineplusoffset].name) == true) then -- Fixed by Kelzu, changed from 1 to true for WoD
+				local color = RAID_CLASS_COLORS[CostaSK.db.realm.nList[lineplusoffset].class];
+				if (UnitPlayerOrPetInRaid(CostaSK.db.realm.nList[lineplusoffset].name) == true) then -- Fixed by Kelzu, changed from 1 to true for WoD
 					--getglobal("entry"..line).text:SetTextColor(color.r, color.g, color.b);
-					DSKListFrame["entry" .. line].text:SetTextColor(color.r, color.g, color.b); -- 1.5.0
+					CSKListFrame["entry" .. line].text:SetTextColor(color.r, color.g, color.b); -- 1.5.0
 				else
 					--getglobal("entry"..line).text:SetTextColor(0.5, 0.5, 0.5);
-					DSKListFrame["entry" .. line].text:SetTextColor(0.5, 0.5, 0.5); -- 1.5.0
+					CSKListFrame["entry" .. line].text:SetTextColor(0.5, 0.5, 0.5); -- 1.5.0
 				end
 				--getglobal("entry"..line).text:Show();
-				DSKListFrame["entry" .. line].text:Show(); -- 1.5.0
+				CSKListFrame["entry" .. line].text:Show(); -- 1.5.0
 			else
 				--getglobal("entry"..line).text:Hide();
-				DSKListFrame["entry" .. line].text:Hide(); -- 1.5.0
+				CSKListFrame["entry" .. line].text:Hide(); -- 1.5.0
 			end
 		end
 
 		--disable up/down if top/bottom entry selected
-		if(DSKListFrame.selectedEntry == 1) and Master then
+		if(CSKListFrame.selectedEntry == 1) and Master then
 			--upButton:Disable();
-			DSKListFrame.up:Disable(); -- 1.5.0
+			CSKListFrame.up:Disable(); -- 1.5.0
 		elseif Master then
 			--upButton:Enable();
-			DSKListFrame.up:Enable(); -- 1.5.0
+			CSKListFrame.up:Enable(); -- 1.5.0
 		end
 
-		if(DSKListFrame.selectedEntry == DrunkardSK.db.realm.nLength) and Master then
+		if(CSKListFrame.selectedEntry == CostaSK.db.realm.nLength) and Master then
 			--downButton:Disable();
-			DSKListFrame.down:Disable(); -- 1.5.0
+			CSKListFrame.down:Disable(); -- 1.5.0
 		elseif Master then
 			--downButton:Enable();
-			DSKListFrame.down:Enable(); -- 1.5.0
+			CSKListFrame.down:Enable(); -- 1.5.0
 		end
 
-		if(DSKListFrame.selectedEntry > DrunkardSK.db.realm.nLength) and Master then
+		if(CSKListFrame.selectedEntry > CostaSK.db.realm.nLength) and Master then
 			--downButton:Disable();
 			--upButton:Disable();
-			DSKListFrame.down:Disable(); -- 1.5.0
-			DSKListFrame.up:Disable(); -- 1.5.0
+			CSKListFrame.down:Disable(); -- 1.5.0
+			CSKListFrame.up:Disable(); -- 1.5.0
 		end
 
-		--FauxScrollFrame_Update(ScrollList,DrunkardSK.db.realm.nLength,18,16);
-		FauxScrollFrame_Update(DSKListFrame.list,DrunkardSK.db.realm.nLength,18,16); -- 1.5.0
-	elseif(PanelTemplates_GetSelectedTab(DSKListFrame) == 2) then
+		--FauxScrollFrame_Update(ScrollList,CostaSK.db.realm.nLength,18,16);
+		FauxScrollFrame_Update(CSKListFrame.list,CostaSK.db.realm.nLength,18,16); -- 1.5.0
+	elseif(PanelTemplates_GetSelectedTab(CSKListFrame) == 2) then
 		local line; -- 1 through 18 of our window to scroll
 		local lineplusoffset; -- an index into our data calculated from the scroll offset
 		--loop through and set names and colors in list
 		for line=1,18 do
 			--lineplusoffset = line + FauxScrollFrame_GetOffset(ScrollList);
-			lineplusoffset = line + FauxScrollFrame_GetOffset(DSKListFrame.list); -- 1.5.0
-			if lineplusoffset <= DrunkardSK.db.realm.tLength then
-				if DrunkardSK.db.realm.tList[lineplusoffset].bid == "" then
-					--getglobal("entry"..line).text:SetText(lineplusoffset..". "..DrunkardSK.db.realm.tList[lineplusoffset].name);
-					DSKListFrame["entry" .. line].text:SetText(lineplusoffset..". "..DrunkardSK.db.realm.tList[lineplusoffset].name); -- 1.5.0
+			lineplusoffset = line + FauxScrollFrame_GetOffset(CSKListFrame.list); -- 1.5.0
+			if lineplusoffset <= CostaSK.db.realm.tLength then
+				if CostaSK.db.realm.tList[lineplusoffset].bid == "" then
+					--getglobal("entry"..line).text:SetText(lineplusoffset..". "..CostaSK.db.realm.tList[lineplusoffset].name);
+					CSKListFrame["entry" .. line].text:SetText(lineplusoffset..". "..CostaSK.db.realm.tList[lineplusoffset].name); -- 1.5.0
 				else
-					--getglobal("entry"..line).text:SetText(lineplusoffset..". "..DrunkardSK.db.realm.tList[lineplusoffset].name.." - "..DrunkardSK.db.realm.tList[lineplusoffset].bid);
-					DSKListFrame["entry" .. line].text:SetText(lineplusoffset..". "..DrunkardSK.db.realm.tList[lineplusoffset].name.." - "..DrunkardSK.db.realm.tList[lineplusoffset].bid); -- 1.5.0
+					--getglobal("entry"..line).text:SetText(lineplusoffset..". "..CostaSK.db.realm.tList[lineplusoffset].name.." - "..CostaSK.db.realm.tList[lineplusoffset].bid);
+					CSKListFrame["entry" .. line].text:SetText(lineplusoffset..". "..CostaSK.db.realm.tList[lineplusoffset].name.." - "..CostaSK.db.realm.tList[lineplusoffset].bid); -- 1.5.0
 				end 
-				local color = RAID_CLASS_COLORS[DrunkardSK.db.realm.tList[lineplusoffset].class];
-				if (UnitPlayerOrPetInRaid(DrunkardSK.db.realm.tList[lineplusoffset].name) == true) then -- Fixed by Kelzu, changed from 1 to true for WoD
+				local color = RAID_CLASS_COLORS[CostaSK.db.realm.tList[lineplusoffset].class];
+				if (UnitPlayerOrPetInRaid(CostaSK.db.realm.tList[lineplusoffset].name) == true) then -- Fixed by Kelzu, changed from 1 to true for WoD
 					--getglobal("entry"..line).text:SetTextColor(color.r, color.g, color.b);
-					DSKListFrame["entry" .. line].text:SetTextColor(color.r, color.g, color.b); -- 1.5.0
+					CSKListFrame["entry" .. line].text:SetTextColor(color.r, color.g, color.b); -- 1.5.0
 				else
 					--getglobal("entry"..line).text:SetTextColor(0.5, 0.5, 0.5);
-					DSKListFrame["entry" .. line].text:SetTextColor(0.5, 0.5, 0.5); -- 1.5.0
+					CSKListFrame["entry" .. line].text:SetTextColor(0.5, 0.5, 0.5); -- 1.5.0
 				end
 				--getglobal("entry"..line).text:Show();
-				DSKListFrame["entry" .. line].text:Show(); -- 1.5.0
+				CSKListFrame["entry" .. line].text:Show(); -- 1.5.0
 			else
 				--getglobal("entry"..line).text:Hide();
-				DSKListFrame["entry" .. line].text:Hide(); -- 1.5.0
+				CSKListFrame["entry" .. line].text:Hide(); -- 1.5.0
 			end
 		end
 
 		--disable up/down if top/bottom entry selected
-		if(DSKListFrame.selectedEntry == 1) and Master then
+		if(CSKListFrame.selectedEntry == 1) and Master then
 			--upButton:Disable();
-			DSKListFrame.up:Disable(); -- 1.5.0
+			CSKListFrame.up:Disable(); -- 1.5.0
 		elseif Master then
 			--upButton:Enable();
-			DSKListFrame.up:Enable(); -- 1.5.0
+			CSKListFrame.up:Enable(); -- 1.5.0
 		end
 
-		if(DSKListFrame.selectedEntry == DrunkardSK.db.realm.tLength) and Master then
+		if(CSKListFrame.selectedEntry == CostaSK.db.realm.tLength) and Master then
 			--downButton:Disable();
-			DSKListFrame.down:Disable(); -- 1.5.0
+			CSKListFrame.down:Disable(); -- 1.5.0
 		elseif Master then
 			--downButton:Enable();
-			DSKListFrame.down:Enable(); -- 1.5.0
+			CSKListFrame.down:Enable(); -- 1.5.0
 		end
 
-		if(DSKListFrame.selectedEntry > DrunkardSK.db.realm.tLength) and Master then
+		if(CSKListFrame.selectedEntry > CostaSK.db.realm.tLength) and Master then
 			--downButton:Disable();
 			--upButton:Disable();
-			DSKListFrame.down:Disable(); -- 1.5.0
-			DSKListFrame.up:Disable(); -- 1.5.0
+			CSKListFrame.down:Disable(); -- 1.5.0
+			CSKListFrame.up:Disable(); -- 1.5.0
 		end
 
-		--FauxScrollFrame_Update(ScrollList,DrunkardSK.db.realm.tLength,18,16);
-		FauxScrollFrame_Update(DSKListFrame.list,DrunkardSK.db.realm.tLength,18,16); -- 1.5.0
+		--FauxScrollFrame_Update(ScrollList,CostaSK.db.realm.tLength,18,16);
+		FauxScrollFrame_Update(CSKListFrame.list,CostaSK.db.realm.tLength,18,16); -- 1.5.0
 	end
 end
 
 --on Token tab click
 local function ClickTTab()
 	PlaySound(SOUNDKIT.IG_CHARACTER_INFO_TAB) --7.3 PlaySound("igCharacterInfoTab");
-	PanelTemplates_SetTab(DSKListFrame, 2);
-	DSKListFrame.title:SetText("Token List");
-	DSKListFrame.selectedEntry = 0;
-	DSKListFrame.add:Show();
-	DSKListFrame.del:Show();
-	DSKListFrame.up:Show();
-	DSKListFrame.down:Show();
-	DSKListFrame.murder:Show();
-	DSKListFrame.closeBid:Show();
-	DSKListFrame.sync:Show();
-	DSKListFrame.list:Show();
+	PanelTemplates_SetTab(CSKListFrame, 2);
+	CSKListFrame.title:SetText("Token List");
+	CSKListFrame.selectedEntry = 0;
+	CSKListFrame.add:Show();
+	CSKListFrame.del:Show();
+	CSKListFrame.up:Show();
+	CSKListFrame.down:Show();
+	CSKListFrame.murder:Show();
+	CSKListFrame.closeBid:Show();
+	CSKListFrame.sync:Show();
+	CSKListFrame.list:Show();
 	for i = 1, 18 do -- 1.5.0
-		DSKListFrame["entry" .. i]:Show()
+		CSKListFrame["entry" .. i]:Show()
 	end
-	--[[
-	DSKListFrame.entry1:Show();
-	DSKListFrame.entry2:Show();
-	DSKListFrame.entry3:Show();
-	DSKListFrame.entry4:Show();
-	DSKListFrame.entry5:Show();
-	DSKListFrame.entry6:Show();
-	DSKListFrame.entry7:Show();
-	DSKListFrame.entry8:Show();
-	DSKListFrame.entry9:Show();
-	DSKListFrame.entry10:Show();
-	DSKListFrame.entry11:Show();
-	DSKListFrame.entry12:Show();
-	DSKListFrame.entry13:Show();
-	DSKListFrame.entry14:Show();
-	DSKListFrame.entry15:Show();
-	DSKListFrame.entry16:Show();
-	DSKListFrame.entry17:Show();
-	DSKListFrame.entry18:Show();
-	]]
-	DSKListFrame.import:Hide();
-	DSKListFrame.export:Hide();
-	DSKListFrame.tokenRadio:Hide();
-	DSKListFrame.normalRadio:Hide();
-	DSKListFrame.editScroll:Hide()
+	CSKListFrame.import:Hide();
+	CSKListFrame.export:Hide();
+	CSKListFrame.tokenRadio:Hide();
+	CSKListFrame.normalRadio:Hide();
+	CSKListFrame.editScroll:Hide()
 	ScrollList_Update();
 end
 
 --on Normal Tab click
 local function ClickNTab()
 	PlaySound(SOUNDKIT.IG_CHARACTER_INFO_TAB) --7.3 PlaySound("igCharacterInfoTab");
-	PanelTemplates_SetTab(DSKListFrame, 1);
-	DSKListFrame.title:SetText("Normal List");
-	DSKListFrame.selectedEntry = 0;
-	DSKListFrame.add:Show();
-	DSKListFrame.del:Show();
-	DSKListFrame.up:Show();
-	DSKListFrame.down:Show();
-	DSKListFrame.murder:Show();
-	DSKListFrame.closeBid:Show();
-	DSKListFrame.sync:Show();
-	DSKListFrame.list:Show();
+	PanelTemplates_SetTab(CSKListFrame, 1);
+	CSKListFrame.title:SetText("Normal List");
+	CSKListFrame.selectedEntry = 0;
+	CSKListFrame.add:Show();
+	CSKListFrame.del:Show();
+	CSKListFrame.up:Show();
+	CSKListFrame.down:Show();
+	CSKListFrame.murder:Show();
+	CSKListFrame.closeBid:Show();
+	CSKListFrame.sync:Show();
+	CSKListFrame.list:Show();
 	for i = 1, 18 do -- 1.5.0
-		DSKListFrame["entry" .. i]:Show()
+		CSKListFrame["entry" .. i]:Show()
 	end
-	--[[
-	DSKListFrame.entry1:Show();
-	DSKListFrame.entry2:Show();
-	DSKListFrame.entry3:Show();
-	DSKListFrame.entry4:Show();
-	DSKListFrame.entry5:Show();
-	DSKListFrame.entry6:Show();
-	DSKListFrame.entry7:Show();
-	DSKListFrame.entry8:Show();
-	DSKListFrame.entry9:Show();
-	DSKListFrame.entry10:Show();
-	DSKListFrame.entry11:Show();
-	DSKListFrame.entry12:Show();
-	DSKListFrame.entry13:Show();
-	DSKListFrame.entry14:Show();
-	DSKListFrame.entry15:Show();
-	DSKListFrame.entry16:Show();
-	DSKListFrame.entry17:Show();
-	DSKListFrame.entry18:Show();
-	]]
-	DSKListFrame.import:Hide();
-	DSKListFrame.export:Hide();
-	DSKListFrame.tokenRadio:Hide();
-	DSKListFrame.normalRadio:Hide();
-	DSKListFrame.editScroll:Hide()
+	CSKListFrame.import:Hide();
+	CSKListFrame.export:Hide();
+	CSKListFrame.tokenRadio:Hide();
+	CSKListFrame.normalRadio:Hide();
+	CSKListFrame.editScroll:Hide()
 	ScrollList_Update();
 end
 
 --on i/e Tab click
 local function ClickITab()
 	PlaySound(SOUNDKIT.IG_CHARACTER_INFO_TAB) --7.3 PlaySound("igCharacterInfoTab");
-	PanelTemplates_SetTab(DSKListFrame, 3);
-	DSKListFrame.title:SetText("Import/Export Lists");
-	DSKListFrame.add:Hide();
-	DSKListFrame.del:Hide();
-	DSKListFrame.up:Hide();
-	DSKListFrame.down:Hide();
-	DSKListFrame.murder:Hide();
-	DSKListFrame.closeBid:Hide();
-	DSKListFrame.sync:Hide();
-	DSKListFrame.list:Hide();
+	PanelTemplates_SetTab(CSKListFrame, 3);
+	CSKListFrame.title:SetText("Import/Export Lists");
+	CSKListFrame.add:Hide();
+	CSKListFrame.del:Hide();
+	CSKListFrame.up:Hide();
+	CSKListFrame.down:Hide();
+	CSKListFrame.murder:Hide();
+	CSKListFrame.closeBid:Hide();
+	CSKListFrame.sync:Hide();
+	CSKListFrame.list:Hide();
 	for i = 1, 18 do -- 1.5.0
-		DSKListFrame["entry" .. i]:Hide()
+		CSKListFrame["entry" .. i]:Hide()
 	end
-	--[[
-	DSKListFrame.entry1:Hide();
-	DSKListFrame.entry2:Hide();
-	DSKListFrame.entry3:Hide();
-	DSKListFrame.entry4:Hide();
-	DSKListFrame.entry5:Hide();
-	DSKListFrame.entry6:Hide();
-	DSKListFrame.entry7:Hide();
-	DSKListFrame.entry8:Hide();
-	DSKListFrame.entry9:Hide();
-	DSKListFrame.entry10:Hide();
-	DSKListFrame.entry11:Hide();
-	DSKListFrame.entry12:Hide();
-	DSKListFrame.entry13:Hide();
-	DSKListFrame.entry14:Hide();
-	DSKListFrame.entry15:Hide();
-	DSKListFrame.entry16:Hide();
-	DSKListFrame.entry17:Hide();
-	DSKListFrame.entry18:Hide();
-	]]
-	DSKListFrame.import:Show();
-	DSKListFrame.export:Show();
-	DSKListFrame.tokenRadio:Show();
-	DSKListFrame.normalRadio:Show();
-	DSKListFrame.editScroll:Show()
-	--DSKListFrame.selectedEntry = 0;
+	CSKListFrame.import:Show();
+	CSKListFrame.export:Show();
+	CSKListFrame.tokenRadio:Show();
+	CSKListFrame.normalRadio:Show();
+	CSKListFrame.editScroll:Show()
+	--CSKListFrame.selectedEntry = 0;
 	--ScrollList_Update();
 end
 
@@ -424,13 +364,13 @@ end
 --on open list click
 local function OpenListClick()
 	ScrollList_Update()
-	DSKListFrame:Show()
+	CSKListFrame:Show()
 end
 
 --on entry button click
 local function EntrySelect(self)
-	--DSKListFrame.selectedEntry = FauxScrollFrame_GetOffset(ScrollList) + self:GetID()
-	DSKListFrame.selectedEntry = FauxScrollFrame_GetOffset(DSKListFrame.list) + self:GetID() -- 1.5.0
+	--CSKListFrame.selectedEntry = FauxScrollFrame_GetOffset(ScrollList) + self:GetID()
+	CSKListFrame.selectedEntry = FauxScrollFrame_GetOffset(CSKListFrame.list) + self:GetID() -- 1.5.0
 	ScrollList_Update()
 end
 
@@ -440,100 +380,100 @@ end
 
 --on add button click
 local function AddClick(self, button, down)
-	if(PanelTemplates_GetSelectedTab(DSKListFrame) == 1) then
+	if(PanelTemplates_GetSelectedTab(CSKListFrame) == 1) then
 		if (UnitExists("target") == true) and (UnitIsPlayer("target") == true) then -- Fixed by Kelzu, changed from 1 to true for WoD
-			if (DrunkardSK.db.realm.nLength == nil) then
-				DrunkardSK.db.realm.nLength = 0;
+			if (CostaSK.db.realm.nLength == nil) then
+				CostaSK.db.realm.nLength = 0;
 			end
-			if (DrunkardSK.db.realm.nList == nil) then
-				DrunkardSK.db.realm.nList = {};
+			if (CostaSK.db.realm.nList == nil) then
+				CostaSK.db.realm.nList = {};
 			end
 
-			DrunkardSK.db.realm.nLength = DrunkardSK.db.realm.nLength + 1;
+			CostaSK.db.realm.nLength = CostaSK.db.realm.nLength + 1;
 
 			local _, englishClass = UnitClass("target");
-			DrunkardSK.db.realm.nList[DrunkardSK.db.realm.nLength] = {name = UnitName("target"), class = englishClass, bid = ""};
-			DrunkardSK.db.realm.nStamp = DrunkardSK:CreateTimeStamp(DrunkardSK.db.realm.nStamp);
+			CostaSK.db.realm.nList[CostaSK.db.realm.nLength] = {name = UnitName("target"), class = englishClass, bid = ""};
+			CostaSK.db.realm.nStamp = CostaSK:CreateTimeStamp(CostaSK.db.realm.nStamp);
 
 		end
-	elseif(PanelTemplates_GetSelectedTab(DSKListFrame) == 2) then
+	elseif(PanelTemplates_GetSelectedTab(CSKListFrame) == 2) then
 		if (UnitExists("target") == true) and (UnitIsPlayer("target") == true) then
-			if (DrunkardSK.db.realm.tLength == nil) then
-				DrunkardSK.db.realm.tLength = 0;
+			if (CostaSK.db.realm.tLength == nil) then
+				CostaSK.db.realm.tLength = 0;
 			end
-			if (DrunkardSK.db.realm.tList == nil) then
-				DrunkardSK.db.realm.tList = {};
+			if (CostaSK.db.realm.tList == nil) then
+				CostaSK.db.realm.tList = {};
 			end
 
-			DrunkardSK.db.realm.tLength = DrunkardSK.db.realm.tLength + 1;
+			CostaSK.db.realm.tLength = CostaSK.db.realm.tLength + 1;
 
 			local _, englishClass = UnitClass("target");
-			DrunkardSK.db.realm.tList[DrunkardSK.db.realm.tLength] = {name = UnitName("target"), class = englishClass, bid = ""};
-			DrunkardSK.db.realm.tStamp = DrunkardSK:CreateTimeStamp(DrunkardSK.db.realm.tStamp);
+			CostaSK.db.realm.tList[CostaSK.db.realm.tLength] = {name = UnitName("target"), class = englishClass, bid = ""};
+			CostaSK.db.realm.tStamp = CostaSK:CreateTimeStamp(CostaSK.db.realm.tStamp);
 
 		end
 	end
-	DrunkardSK:SendCommMessage("DSKBroadcast", DrunkardSK:Serialize(DrunkardSK.db.realm.nStamp, DrunkardSK.db.realm.nLength, DrunkardSK.db.realm.nList, DrunkardSK.db.realm.tStamp, DrunkardSK.db.realm.tLength, DrunkardSK.db.realm.tList), "GUILD");
+	CostaSK:SendCommMessage("CSKBroadcast", CostaSK:Serialize(CostaSK.db.realm.nStamp, CostaSK.db.realm.nLength, CostaSK.db.realm.nList, CostaSK.db.realm.tStamp, CostaSK.db.realm.tLength, CostaSK.db.realm.tList), "GUILD");
 	ScrollList_Update();
 end
 
 --on up button click
 local function UpClick(self, button, down)
-	if(PanelTemplates_GetSelectedTab(DSKListFrame) == 1) then
-		local temp = DrunkardSK.db.realm.nList[DSKListFrame.selectedEntry];
-		DrunkardSK.db.realm.nList[DSKListFrame.selectedEntry] = DrunkardSK.db.realm.nList[DSKListFrame.selectedEntry-1];
-		DrunkardSK.db.realm.nList[DSKListFrame.selectedEntry-1] = temp;
-		DSKListFrame.selectedEntry = DSKListFrame.selectedEntry-1;
-		DrunkardSK.db.realm.nStamp = DrunkardSK:CreateTimeStamp(DrunkardSK.db.realm.nStamp);
-	elseif(PanelTemplates_GetSelectedTab(DSKListFrame) == 2) then
-		local temp = DrunkardSK.db.realm.tList[DSKListFrame.selectedEntry];
-		DrunkardSK.db.realm.tList[DSKListFrame.selectedEntry] = DrunkardSK.db.realm.tList[DSKListFrame.selectedEntry-1];
-		DrunkardSK.db.realm.tList[DSKListFrame.selectedEntry-1] = temp;
-		DSKListFrame.selectedEntry = DSKListFrame.selectedEntry-1;
-		DrunkardSK.db.realm.tStamp = DrunkardSK:CreateTimeStamp(DrunkardSK.db.realm.tStamp);
+	if(PanelTemplates_GetSelectedTab(CSKListFrame) == 1) then
+		local temp = CostaSK.db.realm.nList[CSKListFrame.selectedEntry];
+		CostaSK.db.realm.nList[CSKListFrame.selectedEntry] = CostaSK.db.realm.nList[CSKListFrame.selectedEntry-1];
+		CostaSK.db.realm.nList[CSKListFrame.selectedEntry-1] = temp;
+		CSKListFrame.selectedEntry = CSKListFrame.selectedEntry-1;
+		CostaSK.db.realm.nStamp = CostaSK:CreateTimeStamp(CostaSK.db.realm.nStamp);
+	elseif(PanelTemplates_GetSelectedTab(CSKListFrame) == 2) then
+		local temp = CostaSK.db.realm.tList[CSKListFrame.selectedEntry];
+		CostaSK.db.realm.tList[CSKListFrame.selectedEntry] = CostaSK.db.realm.tList[CSKListFrame.selectedEntry-1];
+		CostaSK.db.realm.tList[CSKListFrame.selectedEntry-1] = temp;
+		CSKListFrame.selectedEntry = CSKListFrame.selectedEntry-1;
+		CostaSK.db.realm.tStamp = CostaSK:CreateTimeStamp(CostaSK.db.realm.tStamp);
 	end
-	DrunkardSK:SendCommMessage("DSKBroadcast", DrunkardSK:Serialize(DrunkardSK.db.realm.nStamp, DrunkardSK.db.realm.nLength, DrunkardSK.db.realm.nList, DrunkardSK.db.realm.tStamp, DrunkardSK.db.realm.tLength, DrunkardSK.db.realm.tList), "GUILD");
+	CostaSK:SendCommMessage("CSKBroadcast", CostaSK:Serialize(CostaSK.db.realm.nStamp, CostaSK.db.realm.nLength, CostaSK.db.realm.nList, CostaSK.db.realm.tStamp, CostaSK.db.realm.tLength, CostaSK.db.realm.tList), "GUILD");
 	ScrollList_Update();
 end
 
 --on down button click
 local function DownClick(self, button, down)
-	if(PanelTemplates_GetSelectedTab(DSKListFrame) == 1) then
-		local temp = DrunkardSK.db.realm.nList[DSKListFrame.selectedEntry];
-		DrunkardSK.db.realm.nList[DSKListFrame.selectedEntry] = DrunkardSK.db.realm.nList[DSKListFrame.selectedEntry+1];
-		DrunkardSK.db.realm.nList[DSKListFrame.selectedEntry+1] = temp;
-		DSKListFrame.selectedEntry = DSKListFrame.selectedEntry+1;
-		DrunkardSK.db.realm.nStamp = DrunkardSK:CreateTimeStamp(DrunkardSK.db.realm.nStamp);
-	elseif(PanelTemplates_GetSelectedTab(DSKListFrame) == 2) then
-		local temp = DrunkardSK.db.realm.tList[DSKListFrame.selectedEntry];
-		DrunkardSK.db.realm.tList[DSKListFrame.selectedEntry] = DrunkardSK.db.realm.tList[DSKListFrame.selectedEntry+1];
-		DrunkardSK.db.realm.tList[DSKListFrame.selectedEntry+1] = temp;
-		DSKListFrame.selectedEntry = DSKListFrame.selectedEntry+1;
-		DrunkardSK.db.realm.tStamp = DrunkardSK:CreateTimeStamp(DrunkardSK.db.realm.tStamp);
+	if(PanelTemplates_GetSelectedTab(CSKListFrame) == 1) then
+		local temp = CostaSK.db.realm.nList[CSKListFrame.selectedEntry];
+		CostaSK.db.realm.nList[CSKListFrame.selectedEntry] = CostaSK.db.realm.nList[CSKListFrame.selectedEntry+1];
+		CostaSK.db.realm.nList[CSKListFrame.selectedEntry+1] = temp;
+		CSKListFrame.selectedEntry = CSKListFrame.selectedEntry+1;
+		CostaSK.db.realm.nStamp = CostaSK:CreateTimeStamp(CostaSK.db.realm.nStamp);
+	elseif(PanelTemplates_GetSelectedTab(CSKListFrame) == 2) then
+		local temp = CostaSK.db.realm.tList[CSKListFrame.selectedEntry];
+		CostaSK.db.realm.tList[CSKListFrame.selectedEntry] = CostaSK.db.realm.tList[CSKListFrame.selectedEntry+1];
+		CostaSK.db.realm.tList[CSKListFrame.selectedEntry+1] = temp;
+		CSKListFrame.selectedEntry = CSKListFrame.selectedEntry+1;
+		CostaSK.db.realm.tStamp = CostaSK:CreateTimeStamp(CostaSK.db.realm.tStamp);
 	end
-	DrunkardSK:SendCommMessage("DSKBroadcast", DrunkardSK:Serialize(DrunkardSK.db.realm.nStamp, DrunkardSK.db.realm.nLength, DrunkardSK.db.realm.nList, DrunkardSK.db.realm.tStamp, DrunkardSK.db.realm.tLength, DrunkardSK.db.realm.tList), "GUILD");
+	CostaSK:SendCommMessage("CSKBroadcast", CostaSK:Serialize(CostaSK.db.realm.nStamp, CostaSK.db.realm.nLength, CostaSK.db.realm.nList, CostaSK.db.realm.tStamp, CostaSK.db.realm.tLength, CostaSK.db.realm.tList), "GUILD");
 	ScrollList_Update();
 end
 
 --on delete button click
 local function DeleteClick(self, button, down)
-	if(DSKListFrame.selectedEntry ~= 0) then
-		if(PanelTemplates_GetSelectedTab(DSKListFrame) == 1) then
-			--if(DrunkardSK.db.realm.nLength > 0) then
-			if(DrunkardSK.db.realm.nLength >= DSKListFrame.selectedEntry) then  -- Make sure we haven't selected empty slot and accidentally delete the last name in the list, added in 1.5.0
-				table.remove(DrunkardSK.db.realm.nList, DSKListFrame.selectedEntry)
-				DrunkardSK.db.realm.nLength = DrunkardSK.db.realm.nLength - 1;
-				DrunkardSK.db.realm.nStamp = DrunkardSK:CreateTimeStamp(DrunkardSK.db.realm.nStamp);
+	if(CSKListFrame.selectedEntry ~= 0) then
+		if(PanelTemplates_GetSelectedTab(CSKListFrame) == 1) then
+			--if(CostaSK.db.realm.nLength > 0) then
+			if(CostaSK.db.realm.nLength >= CSKListFrame.selectedEntry) then  -- Make sure we haven't selected empty slot and accidentally delete the last name in the list, added in 1.5.0
+				table.remove(CostaSK.db.realm.nList, CSKListFrame.selectedEntry)
+				CostaSK.db.realm.nLength = CostaSK.db.realm.nLength - 1;
+				CostaSK.db.realm.nStamp = CostaSK:CreateTimeStamp(CostaSK.db.realm.nStamp);
 			end
-		elseif(PanelTemplates_GetSelectedTab(DSKListFrame) == 2) then
-			--if(DrunkardSK.db.realm.tLength > 0) then
-			if(DrunkardSK.db.realm.tLength >= DSKListFrame.selectedEntry) then  -- Make sure we haven't selected empty slot and accidentally delete the last name in the list, added in 1.5.0
-				table.remove(DrunkardSK.db.realm.tList, DSKListFrame.selectedEntry);
-				DrunkardSK.db.realm.tLength = DrunkardSK.db.realm.tLength - 1;
-				DrunkardSK.db.realm.tStamp = DrunkardSK:CreateTimeStamp(DrunkardSK.db.realm.tStamp);
+		elseif(PanelTemplates_GetSelectedTab(CSKListFrame) == 2) then
+			--if(CostaSK.db.realm.tLength > 0) then
+			if(CostaSK.db.realm.tLength >= CSKListFrame.selectedEntry) then  -- Make sure we haven't selected empty slot and accidentally delete the last name in the list, added in 1.5.0
+				table.remove(CostaSK.db.realm.tList, CSKListFrame.selectedEntry);
+				CostaSK.db.realm.tLength = CostaSK.db.realm.tLength - 1;
+				CostaSK.db.realm.tStamp = CostaSK:CreateTimeStamp(CostaSK.db.realm.tStamp);
 			end
 		end
-		DrunkardSK:SendCommMessage("DSKBroadcast", DrunkardSK:Serialize(DrunkardSK.db.realm.nStamp, DrunkardSK.db.realm.nLength, DrunkardSK.db.realm.nList, DrunkardSK.db.realm.tStamp, DrunkardSK.db.realm.tLength, DrunkardSK.db.realm.tList), "GUILD");
+		CostaSK:SendCommMessage("CSKBroadcast", CostaSK:Serialize(CostaSK.db.realm.nStamp, CostaSK.db.realm.nLength, CostaSK.db.realm.nList, CostaSK.db.realm.tStamp, CostaSK.db.realm.tLength, CostaSK.db.realm.tList), "GUILD");
 		ScrollList_Update();
 	end 
 end
@@ -541,11 +481,11 @@ end
 --close bid button click
 local function CloseBidClick(self, button, down)
 	if (HighName ~= "") then
-		local list = DrunkardSK:WhichList();
+		local list = CostaSK:WhichList();
 		SendChatMessage(HighName.." wins "..ItemLink.."!", "RAID");
 		GiveLoot(ItemLink, HighName) -- Added by Kelzu 1.3.6
 		Suicide(HighRank, list);
-		DrunkardSK:SendCommMessage("DSKBroadcast", DrunkardSK:Serialize(DrunkardSK.db.realm.nStamp, DrunkardSK.db.realm.nLength, DrunkardSK.db.realm.nList, DrunkardSK.db.realm.tStamp, DrunkardSK.db.realm.tLength, DrunkardSK.db.realm.tList), "GUILD");
+		CostaSK:SendCommMessage("CSKBroadcast", CostaSK:Serialize(CostaSK.db.realm.nStamp, CostaSK.db.realm.nLength, CostaSK.db.realm.nList, CostaSK.db.realm.tStamp, CostaSK.db.realm.tLength, CostaSK.db.realm.tList), "GUILD");
 	elseif (HighRoller ~= "") then
 		SendChatMessage(HighRoller.." wins "..ItemLink.."!", "RAID");
 		GiveLoot(ItemLink, HighRoller) -- Added by Kelzu 1.3.6
@@ -563,9 +503,9 @@ local function CloseBidClick(self, button, down)
 	HighRoll = 0;
 	BidNotOpen = true;
 
-	DrunkardSK:SendCommMessage("DSKCloseBid", "cb", "RAID");
+	CostaSK:SendCommMessage("CSKCloseBid", "cb", "RAID");
 
-	DSKListFrame.closeBid:Disable();
+	CSKListFrame.closeBid:Disable();
 
 	ScrollList_Update();
 end
@@ -573,14 +513,14 @@ end
 --murder button click
 local function MurderClick(self, button, down)
 	local list;
-	if (DSKListFrame.selectedEntry ~= 0) then
-		if(PanelTemplates_GetSelectedTab(DSKListFrame) == 1) then
+	if (CSKListFrame.selectedEntry ~= 0) then
+		if(PanelTemplates_GetSelectedTab(CSKListFrame) == 1) then
 			list = "nList";
-		elseif(PanelTemplates_GetSelectedTab(DSKListFrame) == 2) then
+		elseif(PanelTemplates_GetSelectedTab(CSKListFrame) == 2) then
 			list = "tList";
 		end
-		Suicide(DSKListFrame.selectedEntry, list);
-		DrunkardSK:SendCommMessage("DSKBroadcast", DrunkardSK:Serialize(DrunkardSK.db.realm.nStamp, DrunkardSK.db.realm.nLength, DrunkardSK.db.realm.nList, DrunkardSK.db.realm.tStamp, DrunkardSK.db.realm.tLength, DrunkardSK.db.realm.tList), "GUILD");
+		Suicide(CSKListFrame.selectedEntry, list);
+		CostaSK:SendCommMessage("CSKBroadcast", CostaSK:Serialize(CostaSK.db.realm.nStamp, CostaSK.db.realm.nLength, CostaSK.db.realm.nList, CostaSK.db.realm.tStamp, CostaSK.db.realm.tLength, CostaSK.db.realm.tList), "GUILD");
 		ScrollList_Update();
 	end 
 end
@@ -589,10 +529,10 @@ end
 local function SyncClick(self, button, down)
 	if (Master) then
 		--send sync req with master
-		DrunkardSK:SendCommMessage("DSKSyncReq", "master", "RAID");
+		CostaSK:SendCommMessage("CSKSyncReq", "master", "RAID");
 	else
 		--send sync req without master
-		DrunkardSK:SendCommMessage("DSKSyncReq", "not master", "RAID");
+		CostaSK:SendCommMessage("CSKSyncReq", "not master", "RAID");
 	end
 end
 
@@ -600,87 +540,87 @@ end
 local function ExportClick(self, button, down)
 	local exportList = "";
 
-	if(DSKListFrame.normalRadio:GetChecked() == true) then -- Fixed by Kelzu, changed from 1 to true for WoD
-		for i=1, DrunkardSK.db.realm.nLength, 1 do
-			exportList = exportList..i..". "..DrunkardSK.db.realm.nList[i].name.." "..strlower(DrunkardSK.db.realm.nList[i].class).."\n";
+	if(CSKListFrame.normalRadio:GetChecked() == true) then -- Fixed by Kelzu, changed from 1 to true for WoD
+		for i=1, CostaSK.db.realm.nLength, 1 do
+			exportList = exportList..i..". "..CostaSK.db.realm.nList[i].name.." "..strlower(CostaSK.db.realm.nList[i].class).."\n";
 		end
-		DSKListFrame.editArea:SetText(exportList);
-		DSKListFrame.editArea:HighlightText(0);
+		CSKListFrame.editArea:SetText(exportList);
+		CSKListFrame.editArea:HighlightText(0);
 
-	elseif(DSKListFrame.tokenRadio:GetChecked() == true) then -- Fixed by Kelzu, changed from 1 to true for WoD
-		for i=1, DrunkardSK.db.realm.tLength, 1 do
-			exportList = exportList..i..". "..DrunkardSK.db.realm.tList[i].name.." "..strlower(DrunkardSK.db.realm.tList[i].class).."\n";
+	elseif(CSKListFrame.tokenRadio:GetChecked() == true) then -- Fixed by Kelzu, changed from 1 to true for WoD
+		for i=1, CostaSK.db.realm.tLength, 1 do
+			exportList = exportList..i..". "..CostaSK.db.realm.tList[i].name.." "..strlower(CostaSK.db.realm.tList[i].class).."\n";
 		end
-		DSKListFrame.editArea:SetText(exportList);
-		DSKListFrame.editArea:HighlightText(0);
+		CSKListFrame.editArea:SetText(exportList);
+		CSKListFrame.editArea:HighlightText(0);
 	end
 end
 
 --import click
 local function ImportClick(self, button, down)
---DrunkardSK:Print("Import functionality is not currently implemented... but how did you manage to hit the button?");
-	DSKConfirmFrame:Show();
+--CostaSK:Print("Import functionality is not currently implemented... but how did you manage to hit the button?");
+	CSKConfirmFrame:Show();
 end
 
 local function NormalRadioClick(self, button, down)
-	DSKListFrame.tokenRadio:SetChecked(nil);
+	CSKListFrame.tokenRadio:SetChecked(nil);
 end
 
 local function TokenRadioClick(self, button, down)
-	DSKListFrame.normalRadio:SetChecked(nil);
+	CSKListFrame.normalRadio:SetChecked(nil);
 end
 
 --bid button click
 local function BidClick(self, button, down)
 	MyBidType = "bid";
-	DrunkardSK:SendCommMessage("DSKSendBid", DrunkardSK:Serialize(MyBidType, UnitName("player")), "RAID");
-	DSKBidFrame.offspec:Disable();
-	DSKBidFrame.pass:Disable();
-	DSKBidFrame.bid:Disable();
-	DSKBidFrame.retract:Enable();
+	CostaSK:SendCommMessage("CSKSendBid", CostaSK:Serialize(MyBidType, UnitName("player")), "RAID");
+	CSKBidFrame.offspec:Disable();
+	CSKBidFrame.pass:Disable();
+	CSKBidFrame.bid:Disable();
+	CSKBidFrame.retract:Enable();
 end
 
 --offspec button click
 local function OffspecClick(self, button, down)
 	MyBidType = "offspec";
-	DrunkardSK:SendCommMessage("DSKSendBid", DrunkardSK:Serialize(MyBidType, UnitName("player")), "RAID");
-	DSKBidFrame.offspec:Disable();
-	DSKBidFrame.pass:Disable();
-	DSKBidFrame.bid:Disable();
-	DSKBidFrame.retract:Enable();
+	CostaSK:SendCommMessage("CSKSendBid", CostaSK:Serialize(MyBidType, UnitName("player")), "RAID");
+	CSKBidFrame.offspec:Disable();
+	CSKBidFrame.pass:Disable();
+	CSKBidFrame.bid:Disable();
+	CSKBidFrame.retract:Enable();
 end
 
 --pass button click
 local function PassClick(self, button, down)
 	MyBidType = "pass";
-	DrunkardSK:SendCommMessage("DSKSendBid", DrunkardSK:Serialize(MyBidType, UnitName("player")), "RAID");
-	DSKBidFrame.offspec:Disable();
-	DSKBidFrame.pass:Disable();
-	DSKBidFrame.bid:Disable();
-	DSKBidFrame.retract:Enable();
+	CostaSK:SendCommMessage("CSKSendBid", CostaSK:Serialize(MyBidType, UnitName("player")), "RAID");
+	CSKBidFrame.offspec:Disable();
+	CSKBidFrame.pass:Disable();
+	CSKBidFrame.bid:Disable();
+	CSKBidFrame.retract:Enable();
 end
 
 --retract button click
 local function RetractClick(self, button, down)
-	DrunkardSK:SendCommMessage("DSKSendRetract", DrunkardSK:Serialize(MyBidType, UnitName("player")), "RAID");
-	DSKBidFrame.offspec:Enable();
-	DSKBidFrame.pass:Enable();
-	DSKBidFrame.bid:Enable();
-	DSKBidFrame.retract:Disable();
+	CostaSK:SendCommMessage("CSKSendRetract", CostaSK:Serialize(MyBidType, UnitName("player")), "RAID");
+	CSKBidFrame.offspec:Enable();
+	CSKBidFrame.pass:Enable();
+	CSKBidFrame.bid:Enable();
+	CSKBidFrame.retract:Disable();
 end
 
 --accept button click
 local function AcceptClick(self, button, down)
-	local text = DSKListFrame.editArea:GetText();
+	local text = CSKListFrame.editArea:GetText();
 	local i = 1;
 	local found, e, rank, pname, class, uclass;
 
-	if (DSKListFrame.normalRadio:GetChecked() == true) then -- Fixed by Kelzu, changed from 1 to true for WoD
-		DrunkardSK.db.realm.nLength = 0;
-		DrunkardSK.db.realm.nList = {};
-	elseif (DSKListFrame.tokenRadio:GetChecked() == true) then -- Fixed by Kelzu, changed from 1 to true for WoD
-		DrunkardSK.db.realm.tLength = 0;
-		DrunkardSK.db.realm.tList = {};
+	if (CSKListFrame.normalRadio:GetChecked() == true) then -- Fixed by Kelzu, changed from 1 to true for WoD
+		CostaSK.db.realm.nLength = 0;
+		CostaSK.db.realm.nList = {};
+	elseif (CSKListFrame.tokenRadio:GetChecked() == true) then -- Fixed by Kelzu, changed from 1 to true for WoD
+		CostaSK.db.realm.tLength = 0;
+		CostaSK.db.realm.tList = {};
 	end
 
 	text = text:gsub(".", function(c) local b = c:byte() if b > 127 then return "\\" .. b end end) -- UTF-8 to ASCII, added in 1.4.11 by Kelzu
@@ -692,14 +632,14 @@ local function AcceptClick(self, button, down)
 			break;
 		else
 			uclass = strupper(class);
-			--DrunkardSK:Print(rank.." "..pname.." "..uclass);
+			--CostaSK:Print(rank.." "..pname.." "..uclass);
 
 			--make sure entered classes are actually classes
 			if ((uclass ~= "SHAMAN") and (uclass ~= "PALADIN") and (uclass ~= "DRUID") and (uclass ~= "WARRIOR") and (uclass ~= "ROGUE") and 
 			--(uclass ~= "DEATHKNIGHT") and (uclass ~= "PRIEST") and (uclass ~= "WARLOCK") and (uclass ~= "MAGE") and (uclass ~= "HUNTER")) then
 			(uclass ~= "DEATHKNIGHT") and (uclass ~= "PRIEST") and (uclass ~= "WARLOCK") and (uclass ~= "MAGE") and (uclass ~= "HUNTER") and
 			(uclass ~= "MONK") and (uclass ~= "DEMONHUNTER")) then -- Updated by Kelzu
-				DrunkardSK:Print("Error: "..class.." is not a valid class!");
+				CostaSK:Print("Error: "..class.." is not a valid class!");
 				break;
 			end
 
@@ -707,30 +647,30 @@ local function AcceptClick(self, button, down)
 
 			--name to vars
 			--class to vars
-			if (DSKListFrame.normalRadio:GetChecked() == true) then -- Fixed by Kelzu, changed from 1 to true for WoD
-				DrunkardSK.db.realm.nLength = DrunkardSK.db.realm.nLength + 1;
+			if (CSKListFrame.normalRadio:GetChecked() == true) then -- Fixed by Kelzu, changed from 1 to true for WoD
+				CostaSK.db.realm.nLength = CostaSK.db.realm.nLength + 1;
 
-				DrunkardSK.db.realm.nList[DrunkardSK.db.realm.nLength] = {name = pname, class = uclass, bid = ""};
-				DrunkardSK.db.realm.nStamp = DrunkardSK:CreateTimeStamp(DrunkardSK.db.realm.nStamp);
+				CostaSK.db.realm.nList[CostaSK.db.realm.nLength] = {name = pname, class = uclass, bid = ""};
+				CostaSK.db.realm.nStamp = CostaSK:CreateTimeStamp(CostaSK.db.realm.nStamp);
 				
-			elseif (DSKListFrame.tokenRadio:GetChecked() == true) then -- Fixed by Kelzu, changed from 1 to true for WoD
-				DrunkardSK.db.realm.tLength = DrunkardSK.db.realm.tLength + 1;
+			elseif (CSKListFrame.tokenRadio:GetChecked() == true) then -- Fixed by Kelzu, changed from 1 to true for WoD
+				CostaSK.db.realm.tLength = CostaSK.db.realm.tLength + 1;
 			
-				DrunkardSK.db.realm.tList[DrunkardSK.db.realm.tLength] = {name = pname, class = uclass, bid = ""};
-				DrunkardSK.db.realm.tStamp = DrunkardSK:CreateTimeStamp(DrunkardSK.db.realm.tStamp);
+				CostaSK.db.realm.tList[CostaSK.db.realm.tLength] = {name = pname, class = uclass, bid = ""};
+				CostaSK.db.realm.tStamp = CostaSK:CreateTimeStamp(CostaSK.db.realm.tStamp);
 			end
 			
 		end
 		i = e + 1;
 	end
-	DSKConfirmFrame:Hide();
-	DrunkardSK:SendCommMessage("DSKBroadcast", DrunkardSK:Serialize(DrunkardSK.db.realm.nStamp, DrunkardSK.db.realm.nLength, DrunkardSK.db.realm.nList, DrunkardSK.db.realm.tStamp, DrunkardSK.db.realm.tLength, DrunkardSK.db.realm.tList), "GUILD");
+	CSKConfirmFrame:Hide();
+	CostaSK:SendCommMessage("CSKBroadcast", CostaSK:Serialize(CostaSK.db.realm.nStamp, CostaSK.db.realm.nLength, CostaSK.db.realm.nList, CostaSK.db.realm.tStamp, CostaSK.db.realm.tLength, CostaSK.db.realm.tList), "GUILD");
 	ScrollList_Update();
 end
 
 --decline button click
 local function DeclineClick(self, button, down)
-	DSKConfirmFrame:Hide();
+	CSKConfirmFrame:Hide();
 end
 
 --[[
@@ -739,62 +679,61 @@ end
 
 
 
-function DrunkardSK:OnInitialize()
---DrunkardSK:Print(HandleModifiedItemClick);
+function CostaSK:OnInitialize()
+--CostaSK:Print(HandleModifiedItemClick);
 	--saved vars
-	self.db = LibStub("AceDB-3.0"):New("DrunkardSKDB")
+	self.db = LibStub("AceDB-3.0"):New("CostaSKDB")
 
-	if (DrunkardSK.db.realm.nLength == nil) then
-		DrunkardSK.db.realm.nLength = 0;
+	if (CostaSK.db.realm.nLength == nil) then
+		CostaSK.db.realm.nLength = 0;
 	end
-	if (DrunkardSK.db.realm.tLength == nil) then
-		DrunkardSK.db.realm.tLength = 0;
+	if (CostaSK.db.realm.tLength == nil) then
+		CostaSK.db.realm.tLength = 0;
 	end
 
-	if (DrunkardSK.db.realm.nStamp == nil) then
-		DrunkardSK.db.realm.nStamp = 0;
+	if (CostaSK.db.realm.nStamp == nil) then
+		CostaSK.db.realm.nStamp = 0;
 	end
-	if (DrunkardSK.db.realm.tStamp == nil) then
-		DrunkardSK.db.realm.tStamp = 0;
+	if (CostaSK.db.realm.tStamp == nil) then
+		CostaSK.db.realm.tStamp = 0;
 	end
 
 
 
 	--slash command
-	DrunkardSK:RegisterChatCommand("dsk", "OpenList")
-	DrunkardSK:RegisterChatCommand("DSK", "OpenList")
+	CostaSK:RegisterChatCommand("csk", "OpenList")
+	CostaSK:RegisterChatCommand("CSK", "OpenList")
 
 	--set bids in list to ensure backwards compatability
-	if (DrunkardSK.db.realm.nLength > 0) then
-		for i=1, DrunkardSK.db.realm.nLength, 1 do
-			DrunkardSK.db.realm.nList[i].bid = "";
+	if (CostaSK.db.realm.nLength > 0) then
+		for i=1, CostaSK.db.realm.nLength, 1 do
+			CostaSK.db.realm.nList[i].bid = "";
 		end
 	end
 
-	if (DrunkardSK.db.realm.tLength > 0) then
-		for i=1, DrunkardSK.db.realm.tLength, 1 do
-			DrunkardSK.db.realm.tList[i].bid = "";
+	if (CostaSK.db.realm.tLength > 0) then
+		for i=1, CostaSK.db.realm.tLength, 1 do
+			CostaSK.db.realm.tList[i].bid = "";
 		end
 	end
 	
 end
 
-function DrunkardSK:OnEnable()
+function CostaSK:OnEnable()
 	-- Called when the addon is enabled
 	--hooks
-	--hookexists, hookhandler = DrunkardSK:IsHooked("HandleModifiedItemClick")
+	--hookexists, hookhandler = CostaSK:IsHooked("HandleModifiedItemClick")
 	--if(hookexists == false) then
-	--	DrunkardSK:SecureHook("HandleModifiedItemClick", "DSK_HandleModifiedItemClick")
+	--	CostaSK:SecureHook("HandleModifiedItemClick", "CSK_HandleModifiedItemClick")
 	--end
---DrunkardSK:Print(HandleModifiedItemClick);
+--CostaSK:Print(HandleModifiedItemClick);
 	--set bids in list to ensure backwards compatability
-	local f = CreateFrame('Frame', 'DSKBidFrame', UIParent)
+	local f = CreateFrame('Frame', 'CSKBidFrame', UIParent,CostaSK.bg)
 	f:Hide()
 
 	f:SetWidth(350);
 	f:SetHeight(120);
 	f:SetPoint("CENTER");
-	f:SetBackdrop(DrunkardSK.bg)
 	f:EnableMouse(true)
 	f:SetToplevel(true)
 	f:SetMovable(true)
@@ -821,7 +760,7 @@ function DrunkardSK:OnEnable()
 	f.link:SetTextColor(1, 1, 1) -- 7.3 requires this now for some reason?
 
 	--item icon
-	f.item = CreateFrame('Button', "ItemIcon", f, "ItemButtonTemplate")
+	f.item = CreateFrame('ItemButton', "ItemIcon", f)
 	--f.item:SetNormalTexture(GetItemIcon(itemID))
 	f.item:SetScale(1.2);
 	f.item:EnableMouse(true)
@@ -872,13 +811,12 @@ function DrunkardSK:OnEnable()
 	f.openList:SetScript("OnClick", OpenListClick)
 
 
-	local l = CreateFrame('Frame', 'DSKListFrame', UIParent)
+	local l = CreateFrame('Frame', 'CSKListFrame', UIParent,CostaSK.bg)
 	l:Hide()
 
 	l:SetWidth(250); 
 	l:SetHeight(400);
 	l:SetPoint("CENTER");
-	l:SetBackdrop(DrunkardSK.bg)
 	l:EnableMouse(true)
 	l:SetToplevel(true)
 	l:SetMovable(true)
@@ -897,7 +835,7 @@ function DrunkardSK:OnEnable()
 	l.close:SetPoint('TOPRIGHT', -5, -5)
 
 	--normal list tab
-	l.nTab = CreateFrame('Button', 'DSKListFrameTab1', l, "CharacterFrameTabButtonTemplate")
+	l.nTab = CreateFrame('Button', 'CSKListFrameTab1', l, "CharacterFrameTabButtonTemplate")
 	l.nTab:SetPoint('CENTER', l, 'BOTTOMLEFT', 50, -10)
 	l.nTab:SetID(1)
 	l.nTab:SetText('Normal List')
@@ -905,8 +843,8 @@ function DrunkardSK:OnEnable()
 
 
 	--token list tab
-	l.tTab = CreateFrame('Button', 'DSKListFrameTab2', l, "CharacterFrameTabButtonTemplate")
-	--l.tTab:SetPoint("LEFT", DSKListFrameTab1, "RIGHT", -14, 0);
+	l.tTab = CreateFrame('Button', 'CSKListFrameTab2', l, "CharacterFrameTabButtonTemplate")
+	--l.tTab:SetPoint("LEFT", CSKListFrameTab1, "RIGHT", -14, 0);
 	l.tTab:SetPoint("LEFT", l.nTab, "RIGHT", -14, 0); -- 1.5.0
 	l.tTab:SetID(2)
 	l.tTab:SetText('Token List')
@@ -914,8 +852,8 @@ function DrunkardSK:OnEnable()
 
 
 	--i/e list tab
-	l.iTab = CreateFrame('Button', 'DSKListFrameTab3', l, "CharacterFrameTabButtonTemplate")
-	--l.iTab:SetPoint("LEFT", DSKListFrameTab2, "RIGHT", -14, 0);
+	l.iTab = CreateFrame('Button', 'CSKListFrameTab3', l, "CharacterFrameTabButtonTemplate")
+	--l.iTab:SetPoint("LEFT", CSKListFrameTab2, "RIGHT", -14, 0);
 	l.iTab:SetPoint("LEFT", l.tTab, "RIGHT", -14, 0); -- 1.5.0
 	l.iTab:SetID(3)
 	l.iTab:SetText('I/E Lists')
@@ -1284,13 +1222,12 @@ function DrunkardSK:OnEnable()
 ]]
 
 	--confirm import frame
-	local c = CreateFrame('Frame', 'DSKConfirmFrame', UIParent);
+	local c = CreateFrame('Frame', 'CSKConfirmFrame', UIParent,CostaSK.bg);
 	c:Hide();
 
 	c:SetWidth(350); 
 	c:SetHeight(80);
 	c:SetPoint("CENTER");
-	c:SetBackdrop(DrunkardSK.bg)
 	c:EnableMouse(true)
 	c:SetToplevel(true)
 	c:SetMovable(true)
@@ -1317,23 +1254,23 @@ function DrunkardSK:OnEnable()
 	c.decline:SetScript('OnClick', DeclineClick)
 
 	--default disable master functions
-	DSKListFrame.add:Disable();
-	DSKListFrame.del:Disable();
-	DSKListFrame.murder:Disable();
-	DSKListFrame.up:Disable();
-	DSKListFrame.down:Disable();
-	DSKListFrame.closeBid:Disable();
-	DSKListFrame.import:Disable();
+	CSKListFrame.add:Disable();
+	CSKListFrame.del:Disable();
+	CSKListFrame.murder:Disable();
+	CSKListFrame.up:Disable();
+	CSKListFrame.down:Disable();
+	CSKListFrame.closeBid:Disable();
+	CSKListFrame.import:Disable();
 
-	DSKListFrame.selectedEntry = 0;
+	CSKListFrame.selectedEntry = 0;
 
 	--[[
 	--setup tabs
-	PanelTemplates_SetNumTabs(DSKListFrame, 3);
-	PanelTemplates_TabResize(DSKListFrameTab1, 30)
-	PanelTemplates_TabResize(DSKListFrameTab2, 30)
-	PanelTemplates_TabResize(DSKListFrameTab3, 30)
-	PanelTemplates_SetTab(DSKListFrame, 1);
+	PanelTemplates_SetNumTabs(CSKListFrame, 3);
+	PanelTemplates_TabResize(CSKListFrameTab1, 30)
+	PanelTemplates_TabResize(CSKListFrameTab2, 30)
+	PanelTemplates_TabResize(CSKListFrameTab3, 30)
+	PanelTemplates_SetTab(CSKListFrame, 1);
 	]]
 	-- Reduce amount of different globals in 1.5.0
 	--setup tabs
@@ -1344,102 +1281,73 @@ function DrunkardSK:OnEnable()
 	PanelTemplates_SetTab(l, 1);
 
 	--hooks
-	DrunkardSK:SecureHook("HandleModifiedItemClick", "DSK_HandleModifiedItemClick")
+	CostaSK:SecureHook("HandleModifiedItemClick", "CSK_HandleModifiedItemClick")
 
 	--comm setup
-	DrunkardSK:RegisterComm("DSKOpenBid", "OpenBidding")
-	DrunkardSK:RegisterComm("DSKSendBid", "ReceiveBid")
-	DrunkardSK:RegisterComm("DSKNewHigh", "HighBidder")
-	DrunkardSK:RegisterComm("DSKCloseBid", "CloseBid");
-	DrunkardSK:RegisterComm("DSKSendRetract", "RetractBid");
-	DrunkardSK:RegisterComm("DSKSyncReq", "ReceiveSyncReq");
-	DrunkardSK:RegisterComm("DSKBroadcast", "ReceiveBroadcast");
-	DrunkardSK:RegisterComm("DSKSendList", "ReceiveList");
+	CostaSK:RegisterComm("CSKOpenBid", "OpenBidding")
+	CostaSK:RegisterComm("CSKSendBid", "ReceiveBid")
+	CostaSK:RegisterComm("CSKNewHigh", "HighBidder")
+	CostaSK:RegisterComm("CSKCloseBid", "CloseBid");
+	CostaSK:RegisterComm("CSKSendRetract", "RetractBid");
+	CostaSK:RegisterComm("CSKSyncReq", "ReceiveSyncReq");
+	CostaSK:RegisterComm("CSKBroadcast", "ReceiveBroadcast");
+	CostaSK:RegisterComm("CSKSendList", "ReceiveList");
 
 	--register for events
-	--DrunkardSK:RegisterEvent("RAID_ROSTER_UPDATE")
-	DrunkardSK:RegisterEvent("GROUP_ROSTER_UPDATE") -- Fixed by Kelzu
+	--CostaSK:RegisterEvent("RAID_ROSTER_UPDATE")
+	CostaSK:RegisterEvent("GROUP_ROSTER_UPDATE") -- Fixed by Kelzu
 end
 
-function DrunkardSK:OnDisable()
+function CostaSK:OnDisable()
 	-- Called when the addon is disabled
 end
-
-function DrunkardSK:IsOfficer()
-	-- 8.0 introduced C_GuildInfo and we can mimic the original function in 1.5.0
-	if not IsInGuild() then -- Can't be officer if you are not in a guild
-		return false
-	end
-
-	local rankOrder = C_GuildInfo.GetGuildRankOrder(UnitGUID("player"))
-	--local _, _, _, officerchat_speak = C_GuildInfo.GuildControlGetRankFlags(rankOrder)
-	local officerchat_speak = C_GuildInfo.GuildControlGetRankFlags(rankOrder)[4] -- GuildControlGetRankFlags returns 'table of permissions' instead of 'list of permissions'... Fixed in 1.5.1
-
-	return officerchat_speak
-
-	--[[
-	local ret
-	local _,_,playerrank = GetGuildInfo("player");
-	GuildControlSetRank(playerrank + 1);
-	local _,_,_,officerchat_speak,_,_,_,_,_,_,_,_,_,_,_,_ = GuildControlGetRankFlags();
-	if (officerchat_speak == true) then -- Fixed by Kelzu, changed from 1 to true for WoD
-		ret = true;
-	else
-		ret = false;
-	end
-	
-	return ret;
-	]]
-end
---[[function DrunkardSK:IsOfficer() -- 7.3 GuildControlSetRank() is now Protected function
+--[[function CostaSK:IsOfficer() -- 7.3 GuildControlSetRank() is now Protected function
 	-- Checking if player can edit Officer Notes instead of Officer Chat speak rights
 	return CanEditOfficerNote()
 end]]
 
 --is masterlooter and guild officer
-function DrunkardSK:IsMaster()
-	local ret
-	local _, master, _ = GetLootMethod();
+function CostaSK:IsOfficer()
+  local ret
 
-	if (master ~= nil) and (master == 0) and (DrunkardSK:IsOfficer()) then
-		ret = true;
-	else
-		ret = false;
-	end
-
-	return ret;
+  if C_GuildInfo.CanEditOfficerNote() then
+    ret = true;
+  else
+    ret = false;
+  end
+  return ret;
 end
 
 --handle RAID_ROSTER_UPDATE event
---function DrunkardSK:RAID_ROSTER_UPDATE()
-function DrunkardSK:GROUP_ROSTER_UPDATE() -- Fixed by Kelzu
-	if (DrunkardSK:IsMaster()) then
-		DSKListFrame.add:Enable();
-		DSKListFrame.del:Enable();
-		DSKListFrame.murder:Enable();
-		DSKListFrame.up:Enable();
-		DSKListFrame.down:Enable();
-		DSKListFrame.import:Enable();
+--function CostaSK:RAID_ROSTER_UPDATE()
+function CostaSK:GROUP_ROSTER_UPDATE() -- Fixed by Kelzu
+	if (CostaSK:IsMaster()) then
+		CSKListFrame.add:Enable();
+		CSKListFrame.del:Enable();
+		CSKListFrame.murder:Enable();
+		CSKListFrame.up:Enable();
+		CSKListFrame.down:Enable();
+		CSKListFrame.import:Enable();
 		Master = true;
 	else
-		DSKListFrame.add:Disable();
-		DSKListFrame.del:Disable();
-		DSKListFrame.murder:Disable();
-		DSKListFrame.up:Disable();
-		DSKListFrame.down:Disable();
-		DSKListFrame.closeBid:Disable();
-		DSKListFrame.import:Disable();
+		CSKListFrame.add:Disable();
+		CSKListFrame.del:Disable();
+		CSKListFrame.murder:Disable();
+		CSKListFrame.up:Disable();
+		CSKListFrame.down:Disable();
+		CSKListFrame.closeBid:Disable();
+		CSKListFrame.import:Disable();
 		Master = false;
 	end
 	ScrollList_Update();
 end
 
 --create list timestamp
-function DrunkardSK:CreateTimeStamp(oldstamp)
+function CostaSK:CreateTimeStamp(oldstamp)
 	local _, hour, minute = GameTime_GetGameTime(false);
 	--local _, month, day, year = CalendarGetDate();
 	local CalendarDate = C_DateAndTime.GetTodaysDate() -- CalendarGetDate() came in WotLK, C_DateAndTime was introduced in 8.1 and C_DateAndTime.GetTodaysDate() is available in Classic in 1.5.0, use C_DateAndTime.GetCurrentCalendarTime() on Retail
-	local month, day, year = CalendarDate.month, CalendarDate.day, CalendarDate.year
+	local month, day, year = CalendarDate.month, CalendarDate.weekday, CalendarDate.year
 	if (hour < 10) then
 		hour = "0"..hour;
 	end
@@ -1469,27 +1377,27 @@ function DrunkardSK:CreateTimeStamp(oldstamp)
 	return newstamp;
 end
 
---on dsk slash command
-function DrunkardSK:OpenList(input)
---DrunkardSK:Print(HandleModifiedItemClick);
+--on csk slash command
+function CostaSK:OpenList(input)
+--CostaSK:Print(HandleModifiedItemClick);
 	ScrollList_Update();
-	DSKListFrame:Show();
+	CSKListFrame:Show();
 end
 
 --set item being bid on
-function DrunkardSK:SetOpenItem(item)
+function CostaSK:SetOpenItem(item)
 	--[[
 	local n, l, quality, iL, reqL, t, subT, maxS, equipS, texture = GetItemInfo(item)
-	DSKBidFrame.link:AddMessage(item);
+	CSKBidFrame.link:AddMessage(item);
 
 	--texture = texture or GetItemIcon(strmatch(item, "item:(%d+)")) -- Fixing the missing/wrong icon bug, Added by Kelzu 1.4.1
 	texture = texture or GetItemIcon(item) -- No need to strmatch, itemLink is as good as itemID
 	quality = quality or 1 -- Fixing this as well, Added by Kelzu 1.4.1
 
 	if (texture ~= nil) or (quality ~= nil) then
-		SetItemButtonTexture(DSKBidFrame.item, texture);
+		SetItemButtonTexture(CSKBidFrame.item, texture);
 		local r, g, b, hex = GetItemQualityColor(quality); -- local scoped by Kelzu 1.4.1
-		SetItemButtonNormalTextureVertexColor(DSKBidFrame.item, r, g, b);
+		SetItemButtonNormalTextureVertexColor(CSKBidFrame.item, r, g, b);
 	end
 	]]
 	-- Doing it the 8.0 way, this should make sure we have the Icon and QualityColor always available to us in 1.5.0
@@ -1498,25 +1406,25 @@ function DrunkardSK:SetOpenItem(item)
 		local itemIcon = i:GetItemIcon()
 		local r, g, b = i:GetItemQualityColor()
 
-		DSKBidFrame.link:AddMessage(item)
+		CSKBidFrame.link:AddMessage(item)
 
-		SetItemButtonTexture(DSKBidFrame.item, itemIcon)
-		SetItemButtonNormalTextureVertexColor(DSKBidFrame.item, r, g, b)
+		SetItemButtonTexture(CSKBidFrame.item, itemIcon)
+		SetItemButtonNormalTextureVertexColor(CSKBidFrame.item, r, g, b)
 	end)
 end
 
 --find persons spot in table
-function DrunkardSK:FindInTable(person, list)
+function CostaSK:FindInTable(person, list)
 	local ret = 0;
 	if (list == "nList") then
-		for i=1, DrunkardSK.db.realm.nLength, 1 do
-			if (DrunkardSK.db.realm.nList[i].name == person) then
+		for i=1, CostaSK.db.realm.nLength, 1 do
+			if (CostaSK.db.realm.nList[i].name == person) then
 				ret = i;
 			end
 		end
 	else
-		for i=1, DrunkardSK.db.realm.tLength, 1 do
-			if (DrunkardSK.db.realm.tList[i].name == person) then
+		for i=1, CostaSK.db.realm.tLength, 1 do
+			if (CostaSK.db.realm.tList[i].name == person) then
 				ret = i;
 			end
 		end
@@ -1525,28 +1433,28 @@ function DrunkardSK:FindInTable(person, list)
 end
 
 --open bid frame for everyone
-function DrunkardSK:OpenBidding(prefix, message, distribution, sender)
+function CostaSK:OpenBidding(prefix, message, distribution, sender)
 	ItemLink = message;
-	DrunkardSK:SetOpenItem(ItemLink);
-	DSKBidFrame:Show();
+	CostaSK:SetOpenItem(ItemLink);
+	CSKBidFrame:Show();
 end
 
 --close bid frame on bid close
-function DrunkardSK:CloseBid(prefix, message, distribution, sender)
-	DSKBidFrame:Hide();
-	DSKBidFrame.offspec:Enable();
-	DSKBidFrame.pass:Enable();
-	DSKBidFrame.bid:Enable();
-	DSKBidFrame.retract:Disable();
-	DSKBidFrame.text:SetText('<No High Bidder>');
-	DSKBidFrame.text:SetTextColor(1, 1, 1);
+function CostaSK:CloseBid(prefix, message, distribution, sender)
+	CSKBidFrame:Hide();
+	CSKBidFrame.offspec:Enable();
+	CSKBidFrame.pass:Enable();
+	CSKBidFrame.bid:Enable();
+	CSKBidFrame.retract:Disable();
+	CSKBidFrame.text:SetText('<No High Bidder>');
+	CSKBidFrame.text:SetTextColor(1, 1, 1);
 
-	for i=1, DrunkardSK.db.realm.nLength, 1 do
-		DrunkardSK.db.realm.nList[i].bid = "";
+	for i=1, CostaSK.db.realm.nLength, 1 do
+		CostaSK.db.realm.nList[i].bid = "";
 	end
 
-	for i=1, DrunkardSK.db.realm.tLength, 1 do
-		DrunkardSK.db.realm.tList[i].bid = "";
+	for i=1, CostaSK.db.realm.tLength, 1 do
+		CostaSK.db.realm.tList[i].bid = "";
 	end
 
 	ScrollList_Update();
@@ -1555,7 +1463,7 @@ end
 
 
 --determine which list to use based on item
-function DrunkardSK:WhichList()
+function CostaSK:WhichList()
 	--local _, _, _, _, _, iType, iSubType, _, _, _ = GetItemInfo(ItemLink);
 	local _, _, _, _, _, iType, iSubType, _, _, _, _, _, _, _, _, itemSetID = GetItemInfo(ItemLink) -- 7.3 Tier-item fix
 	--if (iType == "Miscellaneous") and (iSubType == "Junk") then
@@ -1567,7 +1475,7 @@ function DrunkardSK:WhichList()
 end
 
 --find high roller
-function DrunkardSK:FindHighRoller()
+function CostaSK:FindHighRoller()
 	local roll = 0; 
 	local name = "";
 	local found = false;
@@ -1587,7 +1495,7 @@ function DrunkardSK:FindHighRoller()
 end
 
 --find roller by name and remove
-function DrunkardSK:RemoveRoller(name) 
+function CostaSK:RemoveRoller(name) 
 	for i=1, OffspecCount, 1 do 
 		if (OffspecList[i].name == name) then
 			OffspecList[i].retracted = true;
@@ -1599,9 +1507,9 @@ function DrunkardSK:RemoveRoller(name)
 end
 
 --find bidder by name and remove
-function DrunkardSK:RemoveBidder(name)
-	local list = DrunkardSK:WhichList();
-	local rank = DrunkardSK:FindInTable(name, list);
+function CostaSK:RemoveBidder(name)
+	local list = CostaSK:WhichList();
+	local rank = CostaSK:FindInTable(name, list);
 	local bidrank = 0;
 	for index,value in ipairs(BidList) do 
 		if (value == rank) then
@@ -1614,7 +1522,7 @@ function DrunkardSK:RemoveBidder(name)
 end
 
 --add a roller
-function DrunkardSK:AddRoller(name)
+function CostaSK:AddRoller(name)
 	local found = false;
 	local roll;
 	for i=1, OffspecCount, 1 do 
@@ -1635,35 +1543,35 @@ function DrunkardSK:AddRoller(name)
 end
 
 --update bid in list
-function DrunkardSK:AddBidToList(bid, list, rank)
+function CostaSK:AddBidToList(bid, list, rank)
 	if(list == "nList") then
-		DrunkardSK.db.realm.nList[rank].bid = bid;
+		CostaSK.db.realm.nList[rank].bid = bid;
 	elseif(list == "tList") then
-		DrunkardSK.db.realm.tList[rank].bid = bid;
+		CostaSK.db.realm.tList[rank].bid = bid;
 	end
 	ScrollList_Update();
 end
 
 --update winner
-function DrunkardSK:UpdateWinner()
+function CostaSK:UpdateWinner()
 	if (HighName ~= "") then
-		local list = DrunkardSK:WhichList();
+		local list = CostaSK:WhichList();
 		local _, englishClass = UnitClass(HighName)
-		DrunkardSK:SendCommMessage("DSKNewHigh", DrunkardSK:Serialize("Bid: "..HighRank..". "..HighName, englishClass), "RAID");
+		CostaSK:SendCommMessage("CSKNewHigh", CostaSK:Serialize("Bid: "..HighRank..". "..HighName, englishClass), "RAID");
 	elseif (HighRoller ~= "") then
 		local _, englishClass = UnitClass(HighRoller)
-		DrunkardSK:SendCommMessage("DSKNewHigh", DrunkardSK:Serialize("Offspec: "..HighRoller..": "..HighRoll, englishClass), "RAID");
+		CostaSK:SendCommMessage("CSKNewHigh", CostaSK:Serialize("Offspec: "..HighRoller..": "..HighRoll, englishClass), "RAID");
 	else
-		DrunkardSK:SendCommMessage("DSKNewHigh", DrunkardSK:Serialize("<No High Bidder>", "PRIEST"), "RAID");
+		CostaSK:SendCommMessage("CSKNewHigh", CostaSK:Serialize("<No High Bidder>", "PRIEST"), "RAID");
 	end
 end
 
 --receive bid
-function DrunkardSK:ReceiveBid(prefix, message, distribution, sender)
+function CostaSK:ReceiveBid(prefix, message, distribution, sender)
 	if (BidNotOpen == false) then
-		local success, bidType, bidder = DrunkardSK:Deserialize(message);
-		local list = DrunkardSK:WhichList();
-		local rank = DrunkardSK:FindInTable(bidder, list);
+		local success, bidType, bidder = CostaSK:Deserialize(message);
+		local list = CostaSK:WhichList();
+		local rank = CostaSK:FindInTable(bidder, list);
 
 		--make sure a bid is open and person is in the list
 		if(rank ~= 0) then
@@ -1679,14 +1587,14 @@ function DrunkardSK:ReceiveBid(prefix, message, distribution, sender)
 					end
 				elseif (bidType == "offspec") then
 					--gerenate random number 1-1000 and add to offspec list
-					local roll = DrunkardSK:AddRoller(bidder);
+					local roll = CostaSK:AddRoller(bidder);
 
 					--display in raid chat
 					SendChatMessage(bidder.." rolls "..roll.." (1-1000)" , "RAID");
-					HighRoller, HighRoll = DrunkardSK:FindHighRoller();
+					HighRoller, HighRoll = CostaSK:FindHighRoller();
 				end
 
-				DrunkardSK:UpdateWinner();
+				CostaSK:UpdateWinner();
 
 				--if (BidsReceived == GetNumRaidMembers()) then
 				if (BidsReceived == GetNumGroupMembers()) then -- Fixed by Kelzu
@@ -1695,75 +1603,75 @@ function DrunkardSK:ReceiveBid(prefix, message, distribution, sender)
 			end
 
 			if (bidType == "bid") then
-				DrunkardSK:AddBidToList("Bid", list, rank);
+				CostaSK:AddBidToList("Bid", list, rank);
 			elseif (bidType == "offspec") then
-				DrunkardSK:AddBidToList("Offspec", list, rank);
+				CostaSK:AddBidToList("Offspec", list, rank);
 			elseif (bidType == "pass") then
-				DrunkardSK:AddBidToList("Pass", list, rank);
+				CostaSK:AddBidToList("Pass", list, rank);
 			end
 		else
 			if (Master) then
-				DrunkardSK:Print(string.format("|cffff0000Warning:|r %s tried to bid '%s' while not on %s list.", bidder, bidType, list == "nList" and "normal" or "token"))
+				CostaSK:Print(string.format("|cffff0000Warning:|r %s tried to bid '%s' while not on %s list.", bidder, bidType, list == "nList" and "normal" or "token"))
 			end
 		end
 	end
 end
 
 --receive a request to sync
-function DrunkardSK:ReceiveSyncReq(prefix, message, distribution, sender)
-	if (message == "master") and (DrunkardSK:IsOfficer()) and (Master == false) then
-		DrunkardSK:SendCommMessage("DSKBroadcast", DrunkardSK:Serialize(DrunkardSK.db.realm.nStamp, DrunkardSK.db.realm.nLength, DrunkardSK.db.realm.nList, DrunkardSK.db.realm.tStamp, DrunkardSK.db.realm.tLength, DrunkardSK.db.realm.tList), "GUILD");
+function CostaSK:ReceiveSyncReq(prefix, message, distribution, sender)
+	if (message == "master") and (CostaSK:IsOfficer()) and (Master == false) then
+		CostaSK:SendCommMessage("CSKBroadcast", CostaSK:Serialize(CostaSK.db.realm.nStamp, CostaSK.db.realm.nLength, CostaSK.db.realm.nList, CostaSK.db.realm.tStamp, CostaSK.db.realm.tLength, CostaSK.db.realm.tList), "GUILD");
 	elseif (message == "not master") and (Master) then
-		DrunkardSK:SendCommMessage("DSKBroadcast", DrunkardSK:Serialize(DrunkardSK.db.realm.nStamp, DrunkardSK.db.realm.nLength, DrunkardSK.db.realm.nList, DrunkardSK.db.realm.tStamp, DrunkardSK.db.realm.tLength, DrunkardSK.db.realm.tList), "GUILD");
+		CostaSK:SendCommMessage("CSKBroadcast", CostaSK:Serialize(CostaSK.db.realm.nStamp, CostaSK.db.realm.nLength, CostaSK.db.realm.nList, CostaSK.db.realm.tStamp, CostaSK.db.realm.tLength, CostaSK.db.realm.tList), "GUILD");
 	end
 end
 
 --receive list broadcast from master via guild
-function DrunkardSK:ReceiveBroadcast(prefix, message, distribution, sender)
-	local success, nstamp, nlength, nlist, tstamp, tlength, tlist = DrunkardSK:Deserialize(message);
+function CostaSK:ReceiveBroadcast(prefix, message, distribution, sender)
+	local success, nstamp, nlength, nlist, tstamp, tlength, tlist = CostaSK:Deserialize(message);
 	--if (Master == false) then
-		if (tonumber(nstamp) > DrunkardSK.db.realm.nStamp) then
-			DrunkardSK.db.realm.nStamp = tonumber(nstamp);
-			DrunkardSK.db.realm.nLength = tonumber(nlength);
-			DrunkardSK.db.realm.nList = nlist;
+		if (tonumber(nstamp) > CostaSK.db.realm.nStamp) then
+			CostaSK.db.realm.nStamp = tonumber(nstamp);
+			CostaSK.db.realm.nLength = tonumber(nlength);
+			CostaSK.db.realm.nList = nlist;
 		end
-		if (tonumber(tstamp) > DrunkardSK.db.realm.tStamp) then
-			DrunkardSK.db.realm.tStamp = tonumber(tstamp);
-			DrunkardSK.db.realm.tLength = tonumber(tlength);
-			DrunkardSK.db.realm.tList = tlist;
+		if (tonumber(tstamp) > CostaSK.db.realm.tStamp) then
+			CostaSK.db.realm.tStamp = tonumber(tstamp);
+			CostaSK.db.realm.tLength = tonumber(tlength);
+			CostaSK.db.realm.tList = tlist;
 		end
 	--end
 	if (Master) then
-		DrunkardSK:SendCommMessage("DSKSendList", DrunkardSK:Serialize(DrunkardSK.db.realm.nStamp, DrunkardSK.db.realm.nLength, DrunkardSK.db.realm.nList, DrunkardSK.db.realm.tStamp, DrunkardSK.db.realm.tLength, DrunkardSK.db.realm.tList), "RAID");
+		CostaSK:SendCommMessage("CSKSendList", CostaSK:Serialize(CostaSK.db.realm.nStamp, CostaSK.db.realm.nLength, CostaSK.db.realm.nList, CostaSK.db.realm.tStamp, CostaSK.db.realm.tLength, CostaSK.db.realm.tList), "RAID");
 	end
 
 	ScrollList_Update();
 end
 
 --master rebroadcasts list update via guild to raid
-function DrunkardSK:ReceiveList(prefix, message, distribution, sender)
-	local success, nstamp, nlength, nlist, tstamp, tlength, tlist = DrunkardSK:Deserialize(message);
+function CostaSK:ReceiveList(prefix, message, distribution, sender)
+	local success, nstamp, nlength, nlist, tstamp, tlength, tlist = CostaSK:Deserialize(message);
 	--if (Master) then
-		if (tonumber(nstamp) > DrunkardSK.db.realm.nStamp) then
-			DrunkardSK.db.realm.nStamp = tonumber(nstamp);
-			DrunkardSK.db.realm.nLength = tonumber(nlength);
-			DrunkardSK.db.realm.nList = nlist;
+		if (tonumber(nstamp) > CostaSK.db.realm.nStamp) then
+			CostaSK.db.realm.nStamp = tonumber(nstamp);
+			CostaSK.db.realm.nLength = tonumber(nlength);
+			CostaSK.db.realm.nList = nlist;
 		end
-		if (tonumber(tstamp) > DrunkardSK.db.realm.tStamp) then
-			DrunkardSK.db.realm.tStamp = tonumber(tstamp);
-			DrunkardSK.db.realm.tLength = tonumber(tlength);
-			DrunkardSK.db.realm.tList = tlist;
+		if (tonumber(tstamp) > CostaSK.db.realm.tStamp) then
+			CostaSK.db.realm.tStamp = tonumber(tstamp);
+			CostaSK.db.realm.tLength = tonumber(tlength);
+			CostaSK.db.realm.tList = tlist;
 		end
 	--end
 	ScrollList_Update();
 end
 
 --retract bid
-function DrunkardSK:RetractBid(prefix, message, distribution, sender)
+function CostaSK:RetractBid(prefix, message, distribution, sender)
 	if (BidNotOpen == false) then
-		local success, bidType, bidder = DrunkardSK:Deserialize(message);
-		local list1 = DrunkardSK:WhichList();
-		local rank = DrunkardSK:FindInTable(bidder, list1);
+		local success, bidType, bidder = CostaSK:Deserialize(message);
+		local list1 = CostaSK:WhichList();
+		local rank = CostaSK:FindInTable(bidder, list1);
 
 		--make sure a bid is open and person is in the list
 		if (rank ~= 0) then
@@ -1772,38 +1680,38 @@ function DrunkardSK:RetractBid(prefix, message, distribution, sender)
 				BidsReceived = BidsReceived - 1;
 
 				if(bidType == "bid") then
-					DrunkardSK:RemoveBidder(bidder);
+					CostaSK:RemoveBidder(bidder);
 					SendChatMessage(bidder.." has retracted their bid." , "RAID");
 
 					if(BidList[1] ~= nil) then
 						HighRank = BidList[1];
-						local list = DrunkardSK:WhichList();
+						local list = CostaSK:WhichList();
 						if(list == "nList") then
-							HighName = DrunkardSK.db.realm.nList[HighRank].name;
+							HighName = CostaSK.db.realm.nList[HighRank].name;
 						else
-							HighName = DrunkardSK.db.realm.tList[HighRank].name;
+							HighName = CostaSK.db.realm.tList[HighRank].name;
 						end
 					else
 						HighRank = 5000;
 						HighName = "";
 					end
 				elseif (bidType == "offspec") then
-					DrunkardSK:RemoveRoller(bidder);
-					HighRoller, HighRoll = DrunkardSK:FindHighRoller();
+					CostaSK:RemoveRoller(bidder);
+					HighRoller, HighRoll = CostaSK:FindHighRoller();
 					SendChatMessage(bidder.." has retracted their roll." , "RAID");
 				elseif (bidType == "pass") then
 					SendChatMessage(bidder.." has retracted their pass." , "RAID");
 				end
-				DrunkardSK:UpdateWinner();
+				CostaSK:UpdateWinner();
 			end
 
-			local list = DrunkardSK:WhichList();
-			local rank = DrunkardSK:FindInTable(bidder, list);
+			local list = CostaSK:WhichList();
+			local rank = CostaSK:FindInTable(bidder, list);
 
 			if(list == "nList") then
-				DrunkardSK.db.realm.nList[rank].bid = "";
+				CostaSK.db.realm.nList[rank].bid = "";
 			elseif(list =="tList") then
-				DrunkardSK.db.realm.tList[rank].bid = "";
+				CostaSK.db.realm.tList[rank].bid = "";
 			end
 			ScrollList_Update();
 		end
@@ -1812,15 +1720,15 @@ end
 
 
 --update high bidder
-function DrunkardSK:HighBidder(prefix, message, distribution, sender)
-	local success, text, class = DrunkardSK:Deserialize(message);
+function CostaSK:HighBidder(prefix, message, distribution, sender)
+	local success, text, class = CostaSK:Deserialize(message);
 	local color = RAID_CLASS_COLORS[class];
-	DSKBidFrame.text:SetText(text);
-	DSKBidFrame.text:SetTextColor(color.r, color.g, color.b);
+	CSKBidFrame.text:SetText(text);
+	CSKBidFrame.text:SetTextColor(color.r, color.g, color.b);
 end
 
 --hook alt clicks to open bid
-function DrunkardSK:DSK_HandleModifiedItemClick(item)
+function CostaSK:CSK_HandleModifiedItemClick(item)
 	if (Master) then
 		if (BidNotOpen) then
 			if (IsAltKeyDown() and 
@@ -1828,9 +1736,9 @@ function DrunkardSK:DSK_HandleModifiedItemClick(item)
 					not IsControlKeyDown()) then
 				ItemLink = item;
 				--local _ = GetItemInfo(ItemLink) -- Try to cache GetItemInfo for detecting Tier-items in 7.3 -- We don't need this anymore in 1.5.0
-				DrunkardSK:SendCommMessage("DSKOpenBid", ItemLink, "RAID");
+				CostaSK:SendCommMessage("CSKOpenBid", ItemLink, "RAID");
 				BidNotOpen = false;
-				DSKListFrame.closeBid:Enable();
+				CSKListFrame.closeBid:Enable();
 			end
 		end
 	end

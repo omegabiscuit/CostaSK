@@ -1,14 +1,14 @@
 #@retail@
-## Interface: 70300
+## Interface: 90001
 #@end-retail@
 #@non-retail@
 # ## Interface: 11305
 #@end-non-retail@
-## Title: Drunkard Suicide Kings
-## Notes: Suicide Kings for the guild Drunkard of Bloodscalp. Updated for Classic.
-## Author: Aaron Castor, updated for MoP/WoD/Legion/Classic by Kelzu
+## Title: Costa Suicide Kings
+## Notes: Revised version of DrunkardSK for Shadowlands
+## Author: Aaron Castor, updated for MoP/WoD/Legion/Classic by Kelzu. Shadowlands by Omegabiscuit
 ## Version: @project-version@
-## SavedVariables: DrunkardSKDB
+## SavedVariables: CostaSKDB
 ## OptionalDeps: Ace3
 
 
