@@ -556,6 +556,22 @@ local function ExportClick(self, button, down)
 	end
 end
 
+local function List()
+  local exportList = "";
+  SendChatMessage("----SK List----" ,"SAY" ,nil ,GetChannelName("channelName"));
+  for i=1, CostaSK.db.realm.nLength, 1 do
+      SendChatMessage(i.."."..CostaSK.db.realm.nList[i].name.."\n" ,"SAY" ,nil ,GetChannelName("channelName"));
+--    exportList = exportList..i.."."..CostaSK.db.realm.nList[i].name.."\n";
+  end
+  
+--  SendChatMessage(exportList ,"SAY" ,nil ,GetChannelName("channelName"));  
+   SendChatMessage("----SK Token List----" ,"SAY" ,nil ,GetChannelName("channelName"));
+   for i=1, CostaSK.db.realm.tLength, 1 do
+      SendChatMessage(i.."."..CostaSK.db.realm.tList[i].name.."\n" ,"SAY" ,nil ,GetChannelName("channelName"));
+   end
+--  end
+end
+
 --import click
 local function ImportClick(self, button, down)
 --CostaSK:Print("Import functionality is not currently implemented... but how did you manage to hit the button?");
@@ -1378,10 +1394,25 @@ function CostaSK:CreateTimeStamp(oldstamp)
 end
 
 --on csk slash command
+--function CostaSK:OpenList(input)
+----CostaSK:Print(HandleModifiedItemClick);
+--	ScrollList_Update();
+--	CSKListFrame:Show();
+--end
+
 function CostaSK:OpenList(input)
 --CostaSK:Print(HandleModifiedItemClick);
-	ScrollList_Update();
-	CSKListFrame:Show();
+  if input == 'list' then
+    List()
+  else
+    ScrollList_Update();
+    CSKListFrame:Show();
+  end
+end
+
+function CostaSK:ReportList(input)
+  ScrollList_Update();
+  print(CSKListFrame[0])
 end
 
 --set item being bid on
