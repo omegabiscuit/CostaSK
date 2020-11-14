@@ -7,7 +7,7 @@ local CostaSK = LibStub("AceAddon-3.0"):NewAddon("CostaSK", "AceConsole-3.0", "A
 
 CostaSK.bg = {
 	bgFile = 'Interface\\DialogFrame\\UI-DialogBox-Background',
-	edgeFile = 'Interface\\DialogFrame\\UI-DialogBox-Border',
+  edgeFile = 'Interface\\DialogFrame\\UI-DialogBox-Border',
 	insets = {left = 11, right = 11, top = 12, bottom = 11},
 	tile = true,
 	tileSize = 32,
@@ -728,9 +728,9 @@ function CostaSK:OnEnable()
 	--end
 --CostaSK:Print(HandleModifiedItemClick);
 	--set bids in list to ensure backwards compatability
-	local f = CreateFrame('Frame', 'CSKBidFrame', UIParent,CostaSK.bg)
+	local f = CreateFrame('Frame', 'CSKBidFrame', UIParent,BackdropTemplateMixin and "BackdropTemplate")
 	f:Hide()
-
+  f:SetBackdrop(CostaSK.bg)
 	f:SetWidth(350);
 	f:SetHeight(120);
 	f:SetPoint("CENTER");
@@ -811,11 +811,11 @@ function CostaSK:OnEnable()
 	f.openList:SetScript("OnClick", OpenListClick)
 
 
-	local l = CreateFrame('Frame', 'CSKListFrame', UIParent,CostaSK.bg)
+	local l = CreateFrame('Frame', 'CSKListFrame', UIParent,BackdropTemplateMixin and "BackdropTemplate")
 	l:Hide()
-
 	l:SetWidth(250); 
 	l:SetHeight(400);
+	l:SetBackdrop(CostaSK.bg)
 	l:SetPoint("CENTER");
 	l:EnableMouse(true)
 	l:SetToplevel(true)
@@ -1222,11 +1222,11 @@ function CostaSK:OnEnable()
 ]]
 
 	--confirm import frame
-	local c = CreateFrame('Frame', 'CSKConfirmFrame', UIParent,CostaSK.bg);
+	local c = CreateFrame('Frame', 'CSKConfirmFrame', UIParent,BackdropTemplateMixin and "BackdropTemplate");
 	c:Hide();
-
 	c:SetWidth(350); 
 	c:SetHeight(80);
+	c:SetBackdrop(CostaSK.bg)
 	c:SetPoint("CENTER");
 	c:EnableMouse(true)
 	c:SetToplevel(true)
@@ -1279,7 +1279,7 @@ function CostaSK:OnEnable()
 	PanelTemplates_TabResize(l.tTab, 30)
 	PanelTemplates_TabResize(l.iTab, 30)
 	PanelTemplates_SetTab(l, 1);
-
+  CostaSK:GROUP_ROSTER_UPDATE()
 	--hooks
 	CostaSK:SecureHook("HandleModifiedItemClick", "CSK_HandleModifiedItemClick")
 
@@ -1321,7 +1321,7 @@ end
 --handle RAID_ROSTER_UPDATE event
 --function CostaSK:RAID_ROSTER_UPDATE()
 function CostaSK:GROUP_ROSTER_UPDATE() -- Fixed by Kelzu
-	if (CostaSK:IsMaster()) then
+	if (CostaSK:IsOfficer()) then
 		CSKListFrame.add:Enable();
 		CSKListFrame.del:Enable();
 		CSKListFrame.murder:Enable();
@@ -1346,7 +1346,7 @@ end
 function CostaSK:CreateTimeStamp(oldstamp)
 	local _, hour, minute = GameTime_GetGameTime(false);
 	--local _, month, day, year = CalendarGetDate();
-	local CalendarDate = C_DateAndTime.GetTodaysDate() -- CalendarGetDate() came in WotLK, C_DateAndTime was introduced in 8.1 and C_DateAndTime.GetTodaysDate() is available in Classic in 1.5.0, use C_DateAndTime.GetCurrentCalendarTime() on Retail
+	local CalendarDate = C_DateAndTime.GetCurrentCalendarTime() -- CalendarGetDate() came in WotLK, C_DateAndTime was introduced in 8.1 and C_DateAndTime.GetTodaysDate() is available in Classic in 1.5.0, use C_DateAndTime.GetCurrentCalendarTime() on Retail
 	local month, day, year = CalendarDate.month, CalendarDate.weekday, CalendarDate.year
 	if (hour < 10) then
 		hour = "0"..hour;

@@ -1,12 +1,10 @@
-[![Build Status](https://travis-ci.com/ahakola/DrunkardSK.svg?branch=master)](https://travis-ci.com/ahakola/DrunkardSK)
 
-**There is no Masterlooter in BfA so there is no use for this addon in Retail, but this should be usable in Classic.**
 
-# Drunkard Suicide Kings
+# Costa Suicide Kings
 
-A Suicide Kings loot distribution addon created for &lt;Drunkard&gt; of Bloodscalp. That does not mean it won't work perfectly well for your guild.
+A version of DrunkardSK for Shadowlands, CostaSK is a Suicide Kings loot distribution addon created for &lt;Costa&gt; of Stormrage.
 
-One of the main design goals of DSK was ease of use. There are no options to configure. It is intended to work right out of the box. Set up a list via importing one or manually creating it and you are ready to distribute loot.
+Check out DrunkardSK for the classic version.
 
 ### Features:
 
@@ -21,7 +19,7 @@ One of the main design goals of DSK was ease of use. There are no options to con
 
 ### Usage:
 
-`/dsk` will open the list frame. There are two lists: normal gear and armor tokens.
+`/csk` will open the list frame. There are two lists: normal gear and armor tokens.
 
 In order to manipulate the lists (add, remove, etc), or opening bidding on an item you must be masterlooter in a raid and a guild officer.
 
@@ -37,7 +35,7 @@ To copy a list into WoW. Go to the I/E List tab. Put a list in the appropriate f
 
 ### Notes:
 
-* An officer is defined by ability to speak in `/o`. If you can speak in `/o` you are an officer as far as DSK is concerned.
+* An officer is defined by ability to speak in `/o`. If you can speak in `/o` you are an officer as far as CSK is concerned.
 * Tier items dropped in the vault will use the normal list. Only the actual armor tokens use the token list.
 
 ### TODO:
