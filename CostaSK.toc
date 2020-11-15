@@ -3,7 +3,7 @@
 #@end-retail@
 ## Title: Costa Suicide Kings
 ## Notes: Loot Distribution tool
-## Author: Aaron Castor, updated for MoP/WoD/Legion/Classic by Kelzu. Shadowlands by Omegabiscuit
+## Author: Omegabiscuit -- Original addon DrunkardSK by Aaron Castor and Kelzu
 ## Version: @project-version@
 ## SavedVariables: CostaSKDB
 ## OptionalDeps: Ace3
@@ -11,4 +11,7 @@
 
 embeds.xml
 
-DrunkardSK.lua
+CostaSK-GlobalConstants.lua
+CostaSK.lua
+CostaSK-Util.lua
+

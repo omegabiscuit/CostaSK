@@ -26,11 +26,42 @@ local OffspecList = {}
 local OffspecCount = 0
 local HighRoller = "" 
 local HighRoll = 0
+local lootedItems = {}
+local tooltipLong               -- tooltip with the first 30 lines of the tooltip (for getting ilvl)
+local playerItemCache = {}          -- contains FullItemInfos of the players' items
 
 --other globals
 local EntrySelected = nil
 local MyBidType = ""
 
+-- Keys for the array returned by GetFullItemInfo()
+local FII_ITEM            = 'ITEM'            -- item link
+local FII_QUALITY         = 'QUALITY'           -- return value 3 of Blizzard API call GetItemInfo()
+local FII_BASE_ILVL         = 'BASE_ILVL'         -- return value 4 of Blizzard API call GetItemInfo()
+local FII_REQUIRED_LEVEL      = 'REQUIRED_LEVEL'        -- return value 5 of Blizzard API call GetItemInfo()
+local FII_ITEM_EQUIP_LOC      = 'ITEM_EQUIP_LOC'        -- return value 9 of Blizzard API call GetItemInfo()
+local FII_CLASS           = 'CLASS'           -- return value 12 of Blizzard API call GetItemInfo()
+local FII_SUB_CLASS         = 'SUB_CLASS'         -- return value 13 of Blizzard API call GetItemInfo()
+local FII_BIND_TYPE         = 'BIND_TYPE'         -- return value 14 of Blizzard API call GetItemInfo()
+local FII_REAL_ILVL         = 'REAL_ILVL'         -- real ilvl, derived from tooltip
+local FII_CLASSES         = 'CLASSES'           -- uppercase string of classes that can use the item (ex: tier); nil if item is not class-restricted
+local FII_TRADE_TIME_WARNING_SHOWN  = 'TRADE_TIME_WARNING_SHOWN'  -- true if the 'You may trade this item...' text is in the tooltip
+local FII_HAS_SOCKET        = 'HAS_SOCKET'          -- true if the item has a socket
+
+-- Allowed values for lootedItems[STATUS]
+local STATUS_AVAILABLE        = 'STATUS_AVAILABLE'
+local STATUS_KEPT         = 'STATUS_KEPT'
+
+-- Keys for the lootedItems array
+local LOOTER_NAME         = 'LOOTER_NAME'
+local FULL_ITEM_INFO        = 'FULL_ITEM_INFO'
+local STATUS            = 'STATUS'
+local CONFIRMATION_MESSAGE      = 'CONFIRMATION_MESSAGE'
+local REQUESTORS          = 'REQUESTORS'
+local REQUESTOR_NAME        = 'REQUESTOR_NAME'
+local REQUESTOR_ROLL        = 'REQUESTOR_ROLL'
+local REQUESTOR_REQUEST_TYPE    = 'REQUESTOR_REQUEST_TYPE'
+local REQUESTOR_SORT_ORDER      = 'REQUESTOR_SORT_ORDER'
 --hand out item to the winner automaticly
 local function GiveLoot(itemLink, lootReciever) -- Added by Kelzu 1.3.6
 	local itemDrops = GetNumLootItems() or 0 -- Added 0 to prevent errors by Kelzu 1.3.8 -- Fixed the GetNum function by Kelzu 1.3.9
@@ -255,6 +286,25 @@ local function ScrollList_Update()
 				CSKListFrame["entry" .. line].text:Hide(); -- 1.5.0
 			end
 		end
+		
+		elseif(PanelTemplates_GetSelectedTab(CSKListFrame) == 4) then
+    local line; -- 1 through 18 of our window to scroll
+    local lineplusoffset; -- an index into our data calculated from the scroll offset
+    --loop through and set names and colors in list
+    for line=1,18 do
+      --lineplusoffset = line + FauxScrollFrame_GetOffset(ScrollList);
+      lineplusoffset = line + FauxScrollFrame_GetOffset(CSKListFrame.list); -- 1.5.0
+      if lineplusoffset <= CostaSK.db.realm.lLength then
+        local currItem = CostaSK.db.realm.lList[lineplusoffset].class;
+        --getglobal("entry"..line).text:SetTextColor(0.5, 0.5, 0.5);
+--        local sName, sLink, iRarity, iLevel, iMinLevel, sType, sSubType, iStackCount = GetItemInfo(currItem);
+        CSKListFrame["entry" .. line].text:SetText(lineplusoffset..". "..currItem..':'..CostaSK.db.realm.lList[lineplusoffset].name);
+        CSKListFrame["entry" .. line].text:Show(); -- 1.5.0
+      else
+        --getglobal("entry"..line).text:Hide();
+        CSKListFrame["entry" .. line].text:Hide(); -- 1.5.0
+      end
+    end
 
 		--disable up/down if top/bottom entry selected
 		if(CSKListFrame.selectedEntry == 1) and Master then
@@ -335,6 +385,31 @@ local function ClickNTab()
 	ScrollList_Update();
 end
 
+--on Loot list Tab click
+local function ClickLTab()
+  PlaySound(SOUNDKIT.IG_CHARACTER_INFO_TAB) --7.3 PlaySound("igCharacterInfoTab");
+  PanelTemplates_SetTab(CSKListFrame, 4);
+  CSKListFrame.title:SetText("Loot List");
+  CSKListFrame.selectedEntry = 0;
+  CSKListFrame.add:Hide();
+  CSKListFrame.del:Show();
+  CSKListFrame.up:Hide();
+  CSKListFrame.down:Hide();
+  CSKListFrame.murder:Hide();
+  CSKListFrame.closeBid:Hide();
+  CSKListFrame.sync:Hide();
+  CSKListFrame.list:Show();
+  for i = 1, 18 do -- 1.5.0
+    CSKListFrame["entry" .. i]:Show()
+  end
+  CSKListFrame.import:Hide();
+  CSKListFrame.export:Hide();
+  CSKListFrame.tokenRadio:Hide();
+  CSKListFrame.normalRadio:Hide();
+  CSKListFrame.editScroll:Hide()
+  ScrollList_Update();
+end
+
 --on i/e Tab click
 local function ClickITab()
 	PlaySound(SOUNDKIT.IG_CHARACTER_INFO_TAB) --7.3 PlaySound("igCharacterInfoTab");
@@ -369,7 +444,6 @@ end
 
 --on entry button click
 local function EntrySelect(self)
-	--CSKListFrame.selectedEntry = FauxScrollFrame_GetOffset(ScrollList) + self:GetID()
 	CSKListFrame.selectedEntry = FauxScrollFrame_GetOffset(CSKListFrame.list) + self:GetID() -- 1.5.0
 	ScrollList_Update()
 end
@@ -471,6 +545,13 @@ local function DeleteClick(self, button, down)
 				CostaSK.db.realm.nLength = CostaSK.db.realm.nLength - 1;
 				CostaSK.db.realm.nStamp = CostaSK:CreateTimeStamp(CostaSK.db.realm.nStamp);
 			end
+		elseif(PanelTemplates_GetSelectedTab(CSKListFrame) == 4) then
+      --if(CostaSK.db.realm.tLength > 0) then
+      if(CostaSK.db.realm.lLength >= CSKListFrame.selectedEntry) then  -- Make sure we haven't selected empty slot and accidentally delete the last name in the list, added in 1.5.0
+        table.remove(CostaSK.db.realm.lList, CSKListFrame.selectedEntry);
+        CostaSK.db.realm.lLength = CostaSK.db.realm.lLength - 1;
+        CostaSK.db.realm.lStamp = CostaSK:CreateTimeStamp(CostaSK.db.realm.lStamp);
+       end
 		elseif(PanelTemplates_GetSelectedTab(CSKListFrame) == 2) then
 			--if(CostaSK.db.realm.tLength > 0) then
 			if(CostaSK.db.realm.tLength >= CSKListFrame.selectedEntry) then  -- Make sure we haven't selected empty slot and accidentally delete the last name in the list, added in 1.5.0
@@ -699,7 +780,149 @@ end
 	Loading/Profile Functions
 --]]
 
+local function IsPlayer(characterName)
+  return characterName == 'player'
+    or characterName == UnitName('player')
+end
 
+local function GetFullItemInfo(item)
+  local ITEM_CLASSES_ALLOWED_PATTERN    = _G.ITEM_CLASSES_ALLOWED:gsub('%%s', '(.+)')   -- Classes: (.+)
+  local BIND_TRADE_TIME_REMAINING_PATTERN = _G.BIND_TRADE_TIME_REMAINING:gsub('%%s', '(.+)')  -- You may trade this item with players that were also eligible to loot this item for the next (.+).
+  local TRANSMOGRIFY_TOOLTIP_APPEARANCE_UNKNOWN_PATTERN         = _G.TRANSMOGRIFY_TOOLTIP_APPEARANCE_UNKNOWN:gsub('%%s', '(.+)')      -- You haven't collected this appearance
+  local TRANSMOGRIFY_TOOLTIP_ITEM_UNKNOWN_APPEARANCE_KNOWN_PATTERN  = _G.TRANSMOGRIFY_TOOLTIP_ITEM_UNKNOWN_APPEARANCE_KNOWN:gsub('%%s', '(.+)') -- You've collected this appearance, but not from this item
+  local fullItemInfo = {}
+
+  if item ~= nil then
+    fullItemInfo[FII_ITEM] = item
+    
+    -- determine the basic values from the Blizzard GetItemInfo() API call
+    _, _, fullItemInfo[FII_QUALITY], fullItemInfo[FII_BASE_ILVL], fullItemInfo[FII_REQUIRED_LEVEL], _, _, _, fullItemInfo[FII_ITEM_EQUIP_LOC], _, _, fullItemInfo[FII_CLASS], fullItemInfo[FII_SUB_CLASS], fullItemInfo[FII_BIND_TYPE], _, _, _ = GetItemInfo(item)
+
+    -- determine whether the item is equippable
+
+    
+
+    -- set up the tooltip to determine values that aren't returned via GetItemInfo()
+    tooltipLong = tooltipLong or CSK_CreateEmptyTooltip(30)
+    tooltipLong:ClearLines()
+    tooltipLong:SetHyperlink(item)
+    
+    local classes = nil
+    local hasBindTradeTimeWarning = nil
+    local hasSocket = false
+    local text
+    local index = 6 -- the elements we're looking for are all further down in the tooltip
+    while tooltipLong.leftside[index] do
+      text = tooltipLong.leftside[index]:GetText()
+      if text ~= nil then
+        hasBindTradeTimeWarning = hasBindTradeTimeWarning or text:match(BIND_TRADE_TIME_REMAINING_PATTERN)
+        
+        classes = classes or text:match(ITEM_CLASSES_ALLOWED_PATTERN)
+        hasSocket = hasSocket or text:find(_G.EMPTY_SOCKET_PRISMATIC) == 1
+      end
+      index = index + 1
+    end
+--    print(hasBindTradeTimeWarning)
+    fullItemInfo[FII_TRADE_TIME_WARNING_SHOWN] = hasBindTradeTimeWarning
+    fullItemInfo[FII_HAS_SOCKET] = hasSocket
+  end
+
+  return fullItemInfo
+end
+
+local function AddLootToDB(fullItemInfo, characterName)
+  if (CostaSK.db.realm.lLength == nil) then
+        CostaSK.db.realm.lLength = 0;
+      end
+      if (CostaSK.db.realm.lList == nil) then
+        CostaSK.db.realm.lList = {};
+      end
+
+      CostaSK.db.realm.lLength = CostaSK.db.realm.lLength + 1;
+
+--      local _, englishClass = UnitClass(characterName);
+      CostaSK.db.realm.lList[CostaSK.db.realm.lLength] = {name = characterNamew, class = fullItemInfo[FII_ITEM], bid = ""};
+      CostaSK.db.realm.lStamp = CostaSK:CreateTimeStamp(CostaSK.db.realm.lStamp);
+end
+
+-- Adds the item to the lootedItems array; returns the index of the newly added item
+local function AddLootedItem(fullItemInfo, characterName, status)
+  local lootedItemIndex = #lootedItems + 1
+  lootedItems[lootedItemIndex] = {}
+  lootedItems[lootedItemIndex][LOOTER_NAME] = characterName
+  lootedItems[lootedItemIndex][FULL_ITEM_INFO] = fullItemInfo
+  lootedItems[lootedItemIndex][REQUESTORS] = {}
+  
+  if status == nil then
+    lootedItems[lootedItemIndex][STATUS] = STATUS_AVAILABLE
+
+    if IsPlayer(characterName) then
+      PlaySound(600)  -- 'GLUECREATECHARACTERBUTTON'
+    else
+      PlaySound(888)  -- 'LEVELUP'
+    end
+  else
+    lootedItems[lootedItemIndex][STATUS] = status
+  end
+  AddLootToDB(fullItemInfo,characterName)
+  return lootedItemIndex
+end
+
+
+
+local function IsPlayer(characterName)
+  return characterName == 'player'
+    or characterName == UnitName('player')
+end
+
+
+-- returns true if the item should be evaluated for potential trades based on the following criteria:
+--   1. item is equippable
+--   2. quality is rare or epic
+--   3. item is BoP, or user specified to include BoE items in preferences
+--   4. item does not have azerite armor slots
+local function ShouldBeEvaluated(fullItemInfo)
+  return (fullItemInfo[FII_QUALITY] == LE_ITEM_QUALITY_RARE or fullItemInfo[FII_QUALITY] == LE_ITEM_QUALITY_EPIC)
+    and (fullItemInfo[FII_BIND_TYPE] == LE_ITEM_BIND_ON_ACQUIRE or (fullItemInfo[FII_BIND_TYPE] == LE_ITEM_BIND_ON_EQUIP and not CSK_PREFS[CSK_PREFS_NEVER_OFFER_BOE]))
+end
+
+-- Checks whether or not the loot items should be added to the lootedItems array; adds item if it meets the criteria
+local function PerformNotify(fullItemInfo, looterName)
+  AddLootedItem(fullItemInfo, looterName)
+  print(looterName..' added '..fullItemInfo[FII_ITEM])
+  if ShouldBeEvaluated(fullItemInfo) then
+   
+    local isTradeable = fullItemInfo[FII_TRADE_TIME_WARNING_SHOWN]
+   
+    if isTradeable then
+      AddLootedItem(fullItemInfo, looterName)
+--            UpdateLootedItemsDisplay()
+      CSK_SendBroadcast(looterName .. ' can trade '.. fullItemInfo[FII_ITEM],false)   
+    end
+  end
+end
+
+local function LootReceivedEvent(self, event, ...)
+  local LOOT_ITEM_SELF_PATTERN      = _G.LOOT_ITEM_SELF:gsub('%%s', '(.+)')       -- You receive loot: (.+)
+  local LOOT_ITEM_PATTERN         = _G.LOOT_ITEM:gsub('%%s', '(.+)')          -- (.+) receives loot: (.+)
+  
+  local message, _, _, _, looter = ...
+  local lootedItem = message:match(LOOT_ITEM_SELF_PATTERN)
+  if lootedItem == nil then
+    _, lootedItem = message:match(LOOT_ITEM_PATTERN)
+  end
+
+  if lootedItem then
+    local fullItemInfo = GetFullItemInfo(lootedItem)
+    PerformNotify(fullItemInfo, CSK_GetFullName(looter))
+  end
+end
+
+local function ProcessEvent(self, event, ...)
+  if event == 'CHAT_MSG_LOOT' then
+    LootReceivedEvent(self, event, ...)
+  end
+end
 
 function CostaSK:OnInitialize()
 --CostaSK:Print(HandleModifiedItemClick);
@@ -866,7 +1089,6 @@ function CostaSK:OnEnable()
 
 	--token list tab
 	l.tTab = CreateFrame('Button', 'CSKListFrameTab2', l, "CharacterFrameTabButtonTemplate")
-	--l.tTab:SetPoint("LEFT", CSKListFrameTab1, "RIGHT", -14, 0);
 	l.tTab:SetPoint("LEFT", l.nTab, "RIGHT", -14, 0); -- 1.5.0
 	l.tTab:SetID(2)
 	l.tTab:SetText('Token List')
@@ -875,11 +1097,17 @@ function CostaSK:OnEnable()
 
 	--i/e list tab
 	l.iTab = CreateFrame('Button', 'CSKListFrameTab3', l, "CharacterFrameTabButtonTemplate")
-	--l.iTab:SetPoint("LEFT", CSKListFrameTab2, "RIGHT", -14, 0);
 	l.iTab:SetPoint("LEFT", l.tTab, "RIGHT", -14, 0); -- 1.5.0
 	l.iTab:SetID(3)
 	l.iTab:SetText('I/E Lists')
 	l.iTab:SetScript('OnClick', ClickITab)
+	
+  --lootList list tab
+  l.lTab = CreateFrame('Button', 'CSKListFrameTab4', l, "OptionsFrameTabButtonTemplate")
+  l.lTab:SetPoint('CENTER', l, 'TOPLEFT', 80, 9)
+  l.lTab:SetID(4)
+  l.lTab:SetText('Loot List')
+  l.lTab:SetScript('OnClick', ClickLTab)
 
 
 	--add button
@@ -958,7 +1186,7 @@ function CostaSK:OnEnable()
 	l.editArea:SetMaxLetters(99999)
 	l.editArea:EnableMouse(true)
 	l.editArea:SetScript("OnEscapePressed", l.editArea.ClearFocus)
-	-- XXX why the fuck doesn't SetPoint work on the editbox?
+
 	l.editArea:SetWidth(190)
 	l.editArea:SetText("To Export: Select a list below and hit export.\n\nTo Import: Fill this box with the following format. Make sure names are capitalized correctly. Make sure the correct list is selected below and hit import.\n\nFormat:\n1. Name Class\n2. Name Class\netc")
 
@@ -980,7 +1208,10 @@ function CostaSK:OnEnable()
 	l.up:SetScript('OnClick', UpClick)
 	l.up:Hide()
 ]]
-
+  
+  
+  l:SetScript('OnEvent', ProcessEvent)
+  l:RegisterEvent('CHAT_MSG_LOOT')
 	--scroll frame (actual list)
 	l.list = CreateFrame('ScrollFrame', 'ScrollList', l, 'FauxScrollFrameTemplate')
 	l.list:SetPoint('TOPLEFT', 10, -50)
@@ -1023,225 +1254,6 @@ function CostaSK:OnEnable()
 	l.up:SetFrameStrata('FULLSCREEN')
 	l.up:SetScript('OnClick', UpClick)
 	l.up:Hide()
-
---[[
-	--entry buttons
-	l.entry1 = CreateFrame('Button', 'entry1', l)
-	l.entry1:SetPoint('TOPLEFT', ScrollList, 'TOPLEFT', 8, 0)
-	l.entry1.text = l.entry1:CreateFontString('entry1_Text', 'BORDER','GameFontHighlightLeft')
-	l.entry1.text:SetText('entry1')
-	l.entry1.text:SetPoint('LEFT')
-	l.entry1:SetWidth(200)
-	l.entry1:SetHeight(16)
-	l.entry1:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight", "ADD")
-	l.entry1:EnableMouse(true)
-	l.entry1:SetScript('OnClick', EntryClick)
-	l.entry1:SetID(1)
-
-	l.entry2 = CreateFrame('Button', 'entry2', l)
-	l.entry2:SetPoint('TOPLEFT', entry1, 'BOTTOMLEFT')
-	l.entry2.text = l.entry2:CreateFontString('entry2_Text', 'BORDER','GameFontHighlightLeft')
-	l.entry2.text:SetText('entry2')
-	l.entry2.text:SetPoint('LEFT')
-	l.entry2:SetWidth(200)
-	l.entry2:SetHeight(16)
-	l.entry2:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight", "ADD")
-	l.entry2:EnableMouse(true)
-	l.entry2:SetScript('OnClick', EntryClick)
-	l.entry2:SetID(2)
-
-	l.entry3 = CreateFrame('Button', 'entry3', l)
-	l.entry3:SetPoint('TOPLEFT', entry2, 'BOTTOMLEFT')
-	l.entry3.text = l.entry3:CreateFontString('entry3_Text', 'BORDER','GameFontHighlightLeft')
-	l.entry3.text:SetText('entry3')
-	l.entry3.text:SetPoint('LEFT')
-	l.entry3:SetWidth(200)
-	l.entry3:SetHeight(16)
-	l.entry3:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight", "ADD")
-	l.entry3:EnableMouse(true)
-	l.entry3:SetScript('OnClick', EntryClick)
-	l.entry3:SetID(3)
-
-	l.entry4 = CreateFrame('Button', 'entry4', l)
-	l.entry4:SetPoint('TOPLEFT', entry3, 'BOTTOMLEFT')
-	l.entry4.text = l.entry4:CreateFontString('entry4_Text', 'BORDER','GameFontHighlightLeft')
-	l.entry4.text:SetText('entry4')
-	l.entry4.text:SetPoint('LEFT')
-	l.entry4:SetWidth(200)
-	l.entry4:SetHeight(16)
-	l.entry4:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight", "ADD")
-	l.entry4:EnableMouse(true)
-	l.entry4:SetScript('OnClick', EntryClick)
-	l.entry4:SetID(4)
-
-	l.entry5 = CreateFrame('Button', 'entry5', l)
-	l.entry5:SetPoint('TOPLEFT', entry4, 'BOTTOMLEFT')
-	l.entry5.text = l.entry5:CreateFontString('entry5_Text', 'BORDER','GameFontHighlightLeft')
-	l.entry5.text:SetText('entry5')
-	l.entry5.text:SetPoint('LEFT')
-	l.entry5:SetWidth(200)
-	l.entry5:SetHeight(16)
-	l.entry5:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight", "ADD")
-	l.entry5:EnableMouse(true)
-	l.entry5:SetScript('OnClick', EntryClick)
-	l.entry5:SetID(5)
-
-	l.entry6 = CreateFrame('Button', 'entry6', l)
-	l.entry6:SetPoint('TOPLEFT', entry5, 'BOTTOMLEFT')
-	l.entry6.text = l.entry6:CreateFontString('entry6_Text', 'BORDER','GameFontHighlightLeft')
-	l.entry6.text:SetText('entry6')
-	l.entry6.text:SetPoint('LEFT')
-	l.entry6:SetWidth(200)
-	l.entry6:SetHeight(16)
-	l.entry6:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight", "ADD")
-	l.entry6:EnableMouse(true)
-	l.entry6:SetScript('OnClick', EntryClick)
-	l.entry6:SetID(6)
-
-	l.entry7 = CreateFrame('Button', 'entry7', l)
-	l.entry7:SetPoint('TOPLEFT', entry6, 'BOTTOMLEFT')
-	l.entry7.text = l.entry7:CreateFontString('entry7_Text', 'BORDER','GameFontHighlightLeft')
-	l.entry7.text:SetText('entry7')
-	l.entry7.text:SetPoint('LEFT')
-	l.entry7:SetWidth(200)
-	l.entry7:SetHeight(16)
-	l.entry7:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight", "ADD")
-	l.entry7:EnableMouse(true)
-	l.entry7:SetScript('OnClick', EntryClick)
-	l.entry7:SetID(7)
-
-	l.entry8 = CreateFrame('Button', 'entry8', l)
-	l.entry8:SetPoint('TOPLEFT', entry7, 'BOTTOMLEFT')
-	l.entry8.text = l.entry8:CreateFontString('entry8_Text', 'BORDER','GameFontHighlightLeft')
-	l.entry8.text:SetText('entry8')
-	l.entry8.text:SetPoint('LEFT')
-	l.entry8:SetWidth(200)
-	l.entry8:SetHeight(16)
-	l.entry8:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight", "ADD")
-	l.entry8:EnableMouse(true)
-	l.entry8:SetScript('OnClick', EntryClick)
-	l.entry8:SetID(8)
-
-	l.entry9 = CreateFrame('Button', 'entry9', l)
-	l.entry9:SetPoint('TOPLEFT', entry8, 'BOTTOMLEFT')
-	l.entry9.text = l.entry9:CreateFontString('entry9_Text', 'BORDER','GameFontHighlightLeft')
-	l.entry9.text:SetText('entry9')
-	l.entry9.text:SetPoint('LEFT')
-	l.entry9:SetWidth(200)
-	l.entry9:SetHeight(16)
-	l.entry9:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight", "ADD")
-	l.entry9:EnableMouse(true)
-	l.entry9:SetScript('OnClick', EntryClick)
-	l.entry9:SetID(9)
-
-	l.entry10 = CreateFrame('Button', 'entry10', l)
-	l.entry10:SetPoint('TOPLEFT', entry9, 'BOTTOMLEFT')
-	l.entry10.text = l.entry10:CreateFontString('entry10_Text', 'BORDER','GameFontHighlightLeft')
-	l.entry10.text:SetText('entry10')
-	l.entry10.text:SetPoint('LEFT')
-	l.entry10:SetWidth(200)
-	l.entry10:SetHeight(16)
-	l.entry10:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight", "ADD")
-	l.entry10:EnableMouse(true)
-	l.entry10:SetScript('OnClick', EntryClick)
-	l.entry10:SetID(10)
-
-	l.entry11 = CreateFrame('Button', 'entry11', l)
-	l.entry11:SetPoint('TOPLEFT', entry10, 'BOTTOMLEFT')
-	l.entry11.text = l.entry11:CreateFontString('entry11_Text', 'BORDER','GameFontHighlightLeft')
-	l.entry11.text:SetText('entry11')
-	l.entry11.text:SetPoint('LEFT')
-	l.entry11:SetWidth(200)
-	l.entry11:SetHeight(16)
-	l.entry11:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight", "ADD")
-	l.entry11:EnableMouse(true)
-	l.entry11:SetScript('OnClick', EntryClick)
-	l.entry11:SetID(11)
-
-	l.entry12 = CreateFrame('Button', 'entry12', l)
-	l.entry12:SetPoint('TOPLEFT', entry11, 'BOTTOMLEFT')
-	l.entry12.text = l.entry12:CreateFontString('entry12_Text', 'BORDER','GameFontHighlightLeft')
-	l.entry12.text:SetText('entry12')
-	l.entry12.text:SetPoint('LEFT')
-	l.entry12:SetWidth(200)
-	l.entry12:SetHeight(16)
-	l.entry12:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight", "ADD")
-	l.entry12:EnableMouse(true)
-	l.entry12:SetScript('OnClick', EntryClick)
-	l.entry12:SetID(12)
-
-	l.entry13 = CreateFrame('Button', 'entry13', l)
-	l.entry13:SetPoint('TOPLEFT', entry12, 'BOTTOMLEFT')
-	l.entry13.text = l.entry13:CreateFontString('entry13_Text', 'BORDER','GameFontHighlightLeft')
-	l.entry13.text:SetText('entry13')
-	l.entry13.text:SetPoint('LEFT')
-	l.entry13:SetWidth(200)
-	l.entry13:SetHeight(16)
-	l.entry13:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight", "ADD")
-	l.entry13:EnableMouse(true)
-	l.entry13:SetScript('OnClick', EntryClick)
-	l.entry13:SetID(13)
-
-	l.entry14 = CreateFrame('Button', 'entry14', l)
-	l.entry14:SetPoint('TOPLEFT', entry13, 'BOTTOMLEFT')
-	l.entry14.text = l.entry14:CreateFontString('entry14_Text', 'BORDER','GameFontHighlightLeft')
-	l.entry14.text:SetText('entry14')
-	l.entry14.text:SetPoint('LEFT')
-	l.entry14:SetWidth(200)
-	l.entry14:SetHeight(16)
-	l.entry14:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight", "ADD")
-	l.entry14:EnableMouse(true)
-	l.entry14:SetScript('OnClick', EntryClick)
-	l.entry14:SetID(14)
-
-	l.entry15 = CreateFrame('Button', 'entry15', l)
-	l.entry15:SetPoint('TOPLEFT', entry14, 'BOTTOMLEFT')
-	l.entry15.text = l.entry15:CreateFontString('entry15_Text', 'BORDER','GameFontHighlightLeft')
-	l.entry15.text:SetText('entry15')
-	l.entry15.text:SetPoint('LEFT')
-	l.entry15:SetWidth(200)
-	l.entry15:SetHeight(16)
-	l.entry15:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight", "ADD")
-	l.entry15:EnableMouse(true)
-	l.entry15:SetScript('OnClick', EntryClick)
-	l.entry15:SetID(15)
-
-	l.entry16 = CreateFrame('Button', 'entry16', l)
-	l.entry16:SetPoint('TOPLEFT', entry15, 'BOTTOMLEFT')
-	l.entry16.text = l.entry16:CreateFontString('entry16_Text', 'BORDER','GameFontHighlightLeft')
-	l.entry16.text:SetText('entry16')
-	l.entry16.text:SetPoint('LEFT')
-	l.entry16:SetWidth(200)
-	l.entry16:SetHeight(16)
-	l.entry16:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight", "ADD")
-	l.entry16:EnableMouse(true)
-	l.entry16:SetScript('OnClick', EntryClick)
-	l.entry16:SetID(16)
-
-	l.entry17 = CreateFrame('Button', 'entry17', l)
-	l.entry17:SetPoint('TOPLEFT', entry16, 'BOTTOMLEFT')
-	l.entry17.text = l.entry17:CreateFontString('entry17_Text', 'BORDER','GameFontHighlightLeft')
-	l.entry17.text:SetText('entry17')
-	l.entry17.text:SetPoint('LEFT')
-	l.entry17:SetWidth(200)
-	l.entry17:SetHeight(16)
-	l.entry17:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight", "ADD")
-	l.entry17:EnableMouse(true)
-	l.entry17:SetScript('OnClick', EntryClick)
-	l.entry17:SetID(17)
-
-	l.entry18 = CreateFrame('Button', 'entry18', l)
-	l.entry18:SetPoint('TOPLEFT', entry17, 'BOTTOMLEFT')
-	l.entry18.text = l.entry18:CreateFontString('entry18_Text', 'BORDER','GameFontHighlightLeft')
-	l.entry18.text:SetText('entry18')
-	l.entry18.text:SetPoint('LEFT')
-	l.entry18:SetWidth(200)
-	l.entry18:SetHeight(16)
-	l.entry18:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight", "ADD")
-	l.entry18:EnableMouse(true)
-	l.entry18:SetScript('OnClick', EntryClick)
-	l.entry18:SetID(18)
-]]
 
 	--confirm import frame
 	local c = CreateFrame('Frame', 'CSKConfirmFrame', UIParent,BackdropTemplateMixin and "BackdropTemplate");
@@ -1286,20 +1298,13 @@ function CostaSK:OnEnable()
 
 	CSKListFrame.selectedEntry = 0;
 
-	--[[
-	--setup tabs
-	PanelTemplates_SetNumTabs(CSKListFrame, 3);
-	PanelTemplates_TabResize(CSKListFrameTab1, 30)
-	PanelTemplates_TabResize(CSKListFrameTab2, 30)
-	PanelTemplates_TabResize(CSKListFrameTab3, 30)
-	PanelTemplates_SetTab(CSKListFrame, 1);
-	]]
 	-- Reduce amount of different globals in 1.5.0
 	--setup tabs
-	PanelTemplates_SetNumTabs(l, 3);
+	PanelTemplates_SetNumTabs(l, 4);
 	PanelTemplates_TabResize(l.nTab, 30)
 	PanelTemplates_TabResize(l.tTab, 30)
 	PanelTemplates_TabResize(l.iTab, 30)
+	PanelTemplates_TabResize(l.lTab, 30)
 	PanelTemplates_SetTab(l, 1);
   CostaSK:GROUP_ROSTER_UPDATE()
 	--hooks
@@ -1399,15 +1404,9 @@ function CostaSK:CreateTimeStamp(oldstamp)
 	return newstamp;
 end
 
---on csk slash command
---function CostaSK:OpenList(input)
-----CostaSK:Print(HandleModifiedItemClick);
---	ScrollList_Update();
---	CSKListFrame:Show();
---end
-
 function CostaSK:OpenList(input)
 --CostaSK:Print(HandleModifiedItemClick);
+--  CostaSK:ReportList(input)
   if input == 'list' then
     List()
   else
