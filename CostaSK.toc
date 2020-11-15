@@ -2,7 +2,7 @@
 ## Interface: 90001
 #@end-retail@
 ## Title: Costa Suicide Kings
-## Notes: Revised version of DrunkardSK for Shadowlands
+## Notes: Loot Distribution tool
 ## Author: Aaron Castor, updated for MoP/WoD/Legion/Classic by Kelzu. Shadowlands by Omegabiscuit
 ## Version: @project-version@
 ## SavedVariables: CostaSKDB
