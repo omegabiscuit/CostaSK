@@ -388,6 +388,12 @@ local function AddClick(self, button, down)
 			if (CostaSK.db.realm.nList == nil) then
 				CostaSK.db.realm.nList = {};
 			end
+			name = UnitName("target")
+			for i=1, CostaSK.db.realm.nLength, 1 do
+			   if(CostaSK.db.realm.nList[i].name==name) then
+			     return
+			   end
+      end
 
 			CostaSK.db.realm.nLength = CostaSK.db.realm.nLength + 1;
 
