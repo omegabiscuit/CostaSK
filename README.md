@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/omegabiscuit/DrunkardSK.svg?branch=development)](https://travis-ci.com/omegabiscuit/DrunkardSK)
+[![Build Status](https://travis-ci.com/omegabiscuit/CostaSK.svg?branch=development)](https://travis-ci.com/omegabiscuit/CostaSK)
 
 # Costa Suicide Kings
 
